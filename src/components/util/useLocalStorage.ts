@@ -4,6 +4,7 @@ const LOCALSTORAGE_VERSION = 0.1;
 
 export const LS_KEY = {
   LS_VERSION: 'app_lsVersion',
+  SITE_ALIASES: 'tour_aliases',
   SHEET_METADATA: 'tour_sheetMetadata',
 };
 type LS_KEY = (typeof LS_KEY)[keyof typeof LS_KEY];
@@ -21,9 +22,9 @@ interface LsMetadataType {
 // TODO we dont set the version anywhere
 export function useLocalStorage<T>(
   key: LS_KEY,
-  defaultValue?: T,
-): [T | undefined, (newValue: T) => void] {
-  const [value, setValue] = useState<T>();
+  defaultValue: T,
+): [T, (newValue: T) => void] {
+  const [value, setValue] = useState<T>(defaultValue);
 
   const parseIfExists = useCallback((key: string) => {
     const stringified = localStorage.getItem(key);

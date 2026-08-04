@@ -23,8 +23,8 @@ import { GAME_MODES } from '../../SETTINGS.ts';
 interface InputZoneProps {
   files: File[];
   setFiles: (newFiles: File[]) => void;
-  gamemode: keyof typeof GAME_MODES | undefined;
-  setGamemode: (newMode: keyof typeof GAME_MODES | undefined) => void;
+  gamemode: keyof typeof GAME_MODES;
+  setGamemode: (newMode: keyof typeof GAME_MODES) => void;
   challongeData: string[][];
   setChallongeData: (newData: string[][]) => void;
   onEdit: () => void;
@@ -37,7 +37,7 @@ export function InputZone(props: InputZoneProps) {
   const handleDropFiles = useCallback(
     (newFiles: File | File[]) => {
       console.log(newFiles);
-      const multiUploadCast = newFiles as File[];
+      const multiUploadCast = Array.from(newFiles as File[]);
       props.setFiles(multiUploadCast);
       props.onEdit();
     },
@@ -97,10 +97,12 @@ export function InputZone(props: InputZoneProps) {
         <TableContainer>
           <Table>
             <TableHead>
-              <TableCell>Player Name</TableCell>
-              <TableCell>Game #</TableCell>
-              <TableCell>Song #</TableCell>
-              <TableCell>Song Name</TableCell>
+              <TableRow>
+                <TableCell>Player Name</TableCell>
+                <TableCell>Game #</TableCell>
+                <TableCell>Song #</TableCell>
+                <TableCell>Song Name</TableCell>
+              </TableRow>
             </TableHead>
           </Table>
         </TableContainer>
@@ -116,7 +118,6 @@ export function InputZone(props: InputZoneProps) {
       <div className={subgroupClassname}>
         <label htmlFor={'gamemode-selector'}>Mode</label>
         <RadioGroup
-          defaultValue="watched"
           id={'gamemode-selector'}
           value={props.gamemode}
           onChange={(e) => {
@@ -131,12 +132,20 @@ export function InputZone(props: InputZoneProps) {
   }, [createRadioOptions, props.setGamemode, props.onEdit]);
 
   const renderTeamsInput = useMemo(() => {
-    const expectedLast0thIdxRow = Math.max(4, props.challongeData.length);
+    const expectedLast0thIdxRow = Math.max(4, props.challongeData.length - 1);
     const expectedLast0thIdxCol = 6;
     return (
       <div className={subgroupClassname + ' flex'}>
         <div className={'flex flex-col w-2/5'}>
-          <label>Teams (doesn't work yet)</label>
+          <label>Challonge Table</label>
+          <ul className={'list-disc'}>
+            <li className={'text-sm'}>
+              Go to the challonge link and copy the results table at the bottom
+            </li>
+            <li className={'text-sm'}>
+              Make sure you copy the header row too (ie start with Rank)
+            </li>
+          </ul>
           <Input
             multiline={true}
             rows={1}
@@ -153,22 +162,30 @@ export function InputZone(props: InputZoneProps) {
           <AccordionSummary>
             Teams table{' '}
             {props.challongeData[0]?.[0] &&
-            props.challongeData[expectedLast0thIdxRow]?.[expectedLast0thIdxCol]
+            props.challongeData[expectedLast0thIdxRow]?.[
+              expectedLast0thIdxCol
+            ] != null
               ? 'OK'
-              : 'MISSING DATA'}{' '}
+              : props.challongeData[0][0].startsWith('Rank')
+                ? 'MISSING TEAMS'
+                : 'MISSING HEADER ROW'}{' '}
             (click to expand)
           </AccordionSummary>
           <AccordionDetails>
             <TableContainer>
               <Table>
-                {props.challongeData.map((row, idx) => {
-                  const cells = row.map((content) => (
-                    <TableCell>{content}</TableCell>
+                {props.challongeData.map((row, rowIdx) => {
+                  const cells = row.map((content, colIdx) => (
+                    <TableCell key={`${content}-${rowIdx}-${colIdx}`}>
+                      {content}
+                    </TableCell>
                   ));
-                  return idx === 0 ? (
-                    <TableHead>{cells}</TableHead>
+                  return rowIdx === 0 ? (
+                    <TableHead key={`row-${row[0]}`}>
+                      <TableRow>{cells}</TableRow>
+                    </TableHead>
                   ) : (
-                    <TableRow>{cells}</TableRow>
+                    <TableRow key={`row-${row[0]}`}>{cells}</TableRow>
                   );
                 })}
               </Table>

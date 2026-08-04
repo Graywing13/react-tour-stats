@@ -2,10 +2,11 @@ import './App.css';
 import { LS_KEY, useLocalStorage } from './components/util/useLocalStorage.ts';
 import { InputZone } from './components/InputZone.tsx';
 import { Tables } from './components/Tables.tsx';
-import { Button } from '@mui/material';
-import { type ReactNode, useCallback, useState } from 'react';
+import { useState } from 'react';
 import { ExportToSheet } from './components/ExportToSheet.tsx';
 import { GAME_MODES } from '../SETTINGS.ts';
+import { Segment } from './components/common/Segment.tsx';
+import { Setup } from './components/Setup.tsx';
 
 const APP_VERSION = 0.1;
 
@@ -17,47 +18,14 @@ const STEPS = {
 };
 
 function App() {
-  const [localStorageVersion] = useLocalStorage<number>(LS_KEY.LS_VERSION);
+  const [localStorageVersion] = useLocalStorage<number>(LS_KEY.LS_VERSION, 0);
   const [onStep, setOnStep] = useState(STEPS.INPUT);
 
   // who cares about redux (jk want to do it later)
-  const [gamemode, setGamemode] = useState<keyof typeof GAME_MODES>();
+  const [gamemode, setGamemode] =
+    useState<keyof typeof GAME_MODES>('WATCHED_0_40');
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [challongeData, setChallongeData] = useState<string[][]>([]);
-  const createSegment = useCallback(
-    (
-      stepIdx: number,
-      title: string,
-      children?: ReactNode,
-      nextText?: string,
-      onNext?: () => void,
-    ) => {
-      const segmentClassname =
-        'pt-4 pb-4 hover:bg-slate-100 transition-colors relative';
-      const headerClassname = 'border-l-4 border-cyan-500 pl-2';
-      return (
-        <div className={segmentClassname}>
-          {onStep < stepIdx && (
-            <div
-              className={
-                'w-full h-full flex absolute z-10 cursor-not-allowed bg-slate-800/60 -top-2 text-white justify-center items-center font-extrabold text-4xl'
-              }
-            >
-              Complete previous step first
-            </div>
-          )}
-          <h2 className={headerClassname}>{title}</h2>
-          {children || <></>}
-          {onNext && nextText && (
-            <Button variant={'contained'} onClick={onNext}>
-              {nextText}
-            </Button>
-          )}
-        </div>
-      );
-    },
-    [onStep],
-  );
+  const [challongeData, setChallongeData] = useState<string[][]>([['']]);
 
   return (
     <div className={'text-left'}>
@@ -69,9 +37,22 @@ function App() {
           other bugs.
         </p>
       </div>
-      {createSegment(
-        STEPS.INPUT,
-        'Step 1. Enter gamemode and jsons',
+      <Segment
+        onStep={onStep}
+        segmentIdx={STEPS.INPUT}
+        title={'One time setup'}
+      >
+        <Setup />
+      </Segment>
+      <Segment
+        onStep={onStep}
+        segmentIdx={STEPS.INPUT}
+        title={'Step 1. Enter gamemode and jsons'}
+        onNext={() => {
+          setOnStep(STEPS.DISCORD);
+        }}
+        nextText={'Make Tables'}
+      >
         <InputZone
           className={'pt-2 pb-2 pl-4 pr-4'}
           files={uploadedFiles}
@@ -81,32 +62,36 @@ function App() {
           challongeData={challongeData}
           setChallongeData={setChallongeData}
           onEdit={() => setOnStep(STEPS.INPUT)}
-        />,
-        'Make Tables',
-        () => {
-          setOnStep(STEPS.DISCORD);
-          console.log('clicked');
-        },
-      )}
-      {createSegment(
-        STEPS.DISCORD,
-        ' Step 2. Screenshot tables and send to #export-stats',
-        <Tables />,
-        'Prep stats for sheet',
-        () => {
-          console.log('clicked');
-        },
-      )}
-      {createSegment(
-        STEPS.SHEETS,
-        'Step 3. Export to sheets',
-        <ExportToSheet />,
-        'ur done but here have a button',
-        () => {
+        />
+      </Segment>
+      <Segment
+        onStep={onStep}
+        segmentIdx={STEPS.DISCORD}
+        title={'Step 2. Screenshot tables and send to #export-stats'}
+        onNext={() => {
+          setOnStep(STEPS.SHEETS);
+        }}
+        nextText={'Prep stats for sheet'}
+      >
+        <Tables
+          files={uploadedFiles}
+          shouldProcess={onStep === STEPS.DISCORD}
+          challongeData={challongeData}
+        />
+      </Segment>
+      <Segment
+        onStep={onStep}
+        segmentIdx={STEPS.SHEETS}
+        title={'Step 3. Export to sheets'}
+        onNext={() => {
+          setOnStep(STEPS.DONE);
           alert('insert fireworks');
-        },
-      )}
-      {createSegment(STEPS.DONE, 'Done!')}
+        }}
+        nextText={'ur done but here have a button'}
+      >
+        <ExportToSheet />
+      </Segment>
+      <Segment onStep={onStep} segmentIdx={STEPS.DONE} title={'Done!'} />
       <div
         className={
           'bg-slate-700 text-gray-200 italic text-sm p-4 text-right w-full'

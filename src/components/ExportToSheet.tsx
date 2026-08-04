@@ -1,15 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { LS_KEY, useLocalStorage } from './util/useLocalStorage.ts';
 import { GAME_MODES } from '../../SETTINGS.ts';
-
-interface SheetMetadataType {
-  sheetId: string;
-  apiKey: string;
-}
+import type { SheetMetadataType } from './common/types.ts';
 
 export function ExportToSheet() {
   const [sheetMetadata, setSheetMetadata] = useLocalStorage<SheetMetadataType>(
     LS_KEY.SHEET_METADATA,
+    { sheetId: '', apiKey: '' },
   );
   const [dirtyMetadata, setDirtyMetadata] = useState('');
   const generateAndCopy = useCallback(() => {}, []);
