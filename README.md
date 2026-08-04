@@ -41,3 +41,4 @@ See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rule
 - [colab] How to use service account with gspread https://github.com/burnash/gspread/blob/master/docs/oauth2.rst
 - [colab] How to use append https://medium.com/@jb.ranchana/write-and-append-dataframes-to-google-sheets-in-python-f62479460cf0
 - [ui] Material ui with tailwind https://mui.com/material-ui/integrations/tailwindcss/tailwindcss-v4/#vite-js-or-any-other-spa
+- [ui] Styling interior of components https://mui.com/material-ui/integrations/tailwindcss/tailwindcss-v4/#usage

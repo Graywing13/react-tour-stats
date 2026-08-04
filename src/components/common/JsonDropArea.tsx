@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface JsonDropAreaProps {
   onDrop: (files: FileList) => void;
 }
 
+// TODO not needed
 export default function JsonDropArea(props: JsonDropAreaProps) {
   const dropRef = useRef<HTMLDivElement>(null);
   const [isDraggedOver, setIsDraggedOver] = useState(false);
@@ -28,13 +29,13 @@ export default function JsonDropArea(props: JsonDropAreaProps) {
     if (zone) {
       const handleDragIn = (e: DragEvent) => handleDrag(e, true);
       const handleDragOut = (e: DragEvent) => handleDrag(e, false);
-      zone.addEventListener("dragenter", handleDragIn);
-      zone.addEventListener("dragleave", handleDragOut);
-      zone.addEventListener("drop", handleDrop);
+      zone.addEventListener('dragenter', handleDragIn);
+      zone.addEventListener('dragleave', handleDragOut);
+      zone.addEventListener('drop', handleDrop);
       return () => {
-        zone.removeEventListener("dragenter", handleDragIn);
-        zone.removeEventListener("dragleave", handleDragOut);
-        zone.removeEventListener("drop", handleDrop);
+        zone.removeEventListener('dragenter', handleDragIn);
+        zone.removeEventListener('dragleave', handleDragOut);
+        zone.removeEventListener('drop', handleDrop);
       };
     }
   }, [handleDrag, handleDrop]);
@@ -42,9 +43,9 @@ export default function JsonDropArea(props: JsonDropAreaProps) {
   return (
     <div
       ref={dropRef}
-      className={"border-4 border-dashed border-gray-300 h-full w-full"}
+      className={'border-4 border-dashed border-gray-300 h-full w-full'}
     >
-      {isDraggedOver ? "drag json files here" : "drop files"}
+      {isDraggedOver ? 'drag json files here' : 'drop files'}
     </div>
   );
 }
