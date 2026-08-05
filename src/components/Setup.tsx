@@ -37,7 +37,6 @@ export function Setup() {
           value={JSON.stringify(aliases, undefined, 2)}
           onChange={(e) => {
             try {
-              console.log(e.target.value);
               setAliases(JSON.parse(e.target.value));
             } catch (error) {
               alert(
@@ -56,7 +55,6 @@ export function Setup() {
           value={JSON.stringify(sheetMetadata, undefined, 2)}
           onChange={(e) => {
             try {
-              console.log(e.target.value);
               setSheetMetadata(JSON.parse(e.target.value));
             } catch (error) {
               alert(
@@ -73,6 +71,7 @@ export function Setup() {
           <li>No bot name changes</li>
           <li>No users taking over each others' aliases</li>
           <li>No mid-game subs</li>
+          <li>Songs that don't have difficulty are counted as 0 diff</li>
         </ul>
         If thats needed for whatever reason... well.. i hope it isnt :)
       </AccordionDetails>

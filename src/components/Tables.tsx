@@ -1,7 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { AliasType, JsonType } from './common/types.ts';
-import * as _ from 'lodash';
-import { LS_KEY, useLocalStorage } from './util/useLocalStorage.ts';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { AliasType, JsonType, PlayerInfo } from './common/types.ts';
 import {
   Table,
   TableBody,
@@ -10,6 +8,8 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import { LS_KEY, useLocalStorage } from './util/useLocalStorage.ts';
+import { calculatePlayerInfos } from './compute/calculatePlayerInfos.ts';
 
 interface TablesProps {
   files: File[];
@@ -17,25 +17,10 @@ interface TablesProps {
   challongeData: string[][];
 }
 
-interface PlayerInfo {
-  // The following are arrays with length 4. idx 0 = nothing, 1 = op, 2 = ed, 3 = in
-  songCounts: number[];
-  rigCounts: number[];
-  correctCounts: number[];
-  difficultyCorrectSum: number[];
-  lockSpeedCorrectSum: number[];
-}
-
-interface PlayerInfos {
-  [username: string]: PlayerInfo;
-}
-
 export function Tables(props: TablesProps) {
+  const [storedAliases] = useLocalStorage<AliasType>(LS_KEY.SITE_ALIASES, {});
   const [fileJsons, setFileJsons] = useState<JsonType[]>([]);
-  const [aliases] = useLocalStorage<AliasType>(LS_KEY.SITE_ALIASES, {});
-  const [finalizedPlayerInfos, setFinalizedPlayerInfos] = useState<PlayerInfos>(
-    {},
-  );
+  const [blep, setBlep] = useState<Map<string, PlayerInfo>>(new Map()); // todo temp idk why race condition
 
   const registeredPlayerNames = useMemo(() => {
     if (!props.shouldProcess) return [];
@@ -58,131 +43,81 @@ export function Tables(props: TablesProps) {
     }
   }, [props.challongeData, props.shouldProcess]);
 
-  useEffect(() => {
-    if (!props.shouldProcess) return;
-    const result: JsonType[] = [];
-    props.files.forEach((file) => {
+  const readFileJsons = useCallback(async (files: File[]) => {
+    const results: JsonType[] = [];
+    for (let i = 0; i < files.length; i++) {
       const reader = new FileReader();
-      reader.onload = onReaderLoad;
-      reader.readAsText(file);
-    });
-    console.log(result);
-    setFileJsons(result);
+      reader.readAsText(files[i]);
 
-    function onReaderLoad(loaded: ProgressEvent<FileReader>) {
-      try {
-        const raw = (loaded.target?.result || '') as string;
-        const parsed = JSON.parse(raw);
-        result.push(parsed);
-      } catch (e) {
-        alert('FAILED TO UPLOAD\n' + e);
-      }
-    }
-  }, [props.shouldProcess, props.files]);
-
-  // todo refactor kinda gross i wrote it in one go
-  useEffect(() => {
-    if (!registeredPlayerNames.length || !props.shouldProcess) return;
-
-    setFinalizedPlayerInfos(calculatePlayerInfos());
-
-    function calculatePlayerInfos(): PlayerInfos {
-      const playerInfos: PlayerInfos = {};
-      fileJsons.forEach((json: JsonType) => {
-        const namesThisGame = new Set<string>();
-        const songCountsThisGame = [0, 0, 0, 0];
-        json.songs.forEach((song) => {
-          const songType = song.songInfo.type;
-          songCountsThisGame[songType]++;
-          song.correctGuessPlayers.forEach((player) => {
-            namesThisGame.add(player.name);
-            initializePlayer(player.name);
-            playerInfos[player.name].correctCounts[songType]++;
-            playerInfos[player.name].difficultyCorrectSum[songType] +=
-              song.songInfo.animeDifficulty;
-            playerInfos[player.name].lockSpeedCorrectSum[songType] +=
-              player.answerTime;
-            playerInfos[player.name].rigCounts[songType]++;
-          });
-        });
-
-        const botNames = registeredPlayerNames.flat();
-        const amqNamesDiffFromBot = _.difference(
-          Array.from(namesThisGame),
-          botNames,
-        );
-        if (amqNamesDiffFromBot.length) {
-          amqNamesDiffFromBot.forEach((amqName) => {
-            const botName = findBotName(amqName, botNames);
-            if (!botName) {
-              const err = `Could not figure out who amqName=${amqName} is. Valid bot names are ${JSON.stringify(botNames)}. Add them to aliases in settings and update the discord pin for everyone else :)`;
-              alert(err);
-              throw new Error(err);
-            }
-            namesThisGame.delete(amqName);
-            namesThisGame.add(botName);
-            renameInObject(amqName, botName);
-          });
-        }
-
-        if (namesThisGame.size < 8) {
-          alert(
-            'someone got 0 rig 0 score gg. i dont have time to code this rn so i will just assume that person is gw13. WAJAJA',
-          );
-          initializePlayer('gw13');
-          namesThisGame.add('gw13');
-        }
-
-        songCountsThisGame.forEach((amount, idx) => {
-          namesThisGame.forEach((botName) => {
-            playerInfos[botName].songCounts[idx] += amount;
-          });
-        });
+      await new Promise((resolve, reject) => {
+        // https://stackoverflow.com/questions/75599571/filereader-should-complete-onload-function-first-then-process-further
+        reader.onload = () => {
+          console.log('****Inside on Load*****');
+          try {
+            const raw = reader.result!.toString();
+            const parsed = JSON.parse(raw);
+            results.push(parsed);
+            resolve(parsed);
+          } catch (e) {
+            alert('FAILED TO UPLOAD\n' + e);
+            reject(e);
+          }
+        };
       });
-
-      function initializePlayer(name: string) {
-        if (!playerInfos[name]) {
-          playerInfos[name] = {
-            correctCounts: [0, 0, 0, 0],
-            difficultyCorrectSum: [0, 0, 0, 0],
-            lockSpeedCorrectSum: [0, 0, 0, 0],
-            rigCounts: [0, 0, 0, 0],
-            songCounts: [0, 0, 0, 0],
-          };
-        }
-      }
-
-      function findBotName(amqName: string, botNames: string[]) {
-        const findNameCaseInsensitive = botNames.find(
-          (botName) => botName.toLowerCase() === amqName.toLowerCase(),
-        );
-        return (
-          findNameCaseInsensitive ||
-          Object.entries(aliases).find(([_botName, aliasList]) =>
-            aliasList.find(
-              (alias) => alias.toLowerCase() === amqName.toLowerCase(),
-            ),
-          )?.[0]
-        );
-      }
-
-      function renameInObject(oldName: string, newName: string) {
-        const oldObj = Object.getOwnPropertyDescriptor(playerInfos, oldName);
-        if (!oldObj) {
-          const error = `could not rename player from ${oldName} to ${newName}`;
-          alert(error);
-          throw new Error(error);
-        }
-        Object.defineProperty(playerInfos, newName, oldObj);
-        delete playerInfos[oldName];
-      }
-
-      return playerInfos;
     }
-  }, [fileJsons, registeredPlayerNames, props.shouldProcess]);
+    return results;
+  }, []);
+
+  useEffect(() => {
+    console.log(`registeredPlayerNames changed ${registeredPlayerNames}`);
+  }, [registeredPlayerNames]);
+
+  useEffect(() => {
+    console.log(`shouldProcess changed ${props.shouldProcess}`);
+  }, [props.shouldProcess]);
+
+  useEffect(() => {
+    console.log(`calculatePlayerInfos changed`);
+  }, [calculatePlayerInfos]);
+
+  useEffect(() => {
+    readFileJsons(props.files).then((newJsons) => setFileJsons(newJsons));
+  }, [readFileJsons, props.files]);
+
+  const finalizedPlayerInfos = useMemo(() => {
+    if (
+      registeredPlayerNames.length &&
+      props.shouldProcess &&
+      fileJsons.length
+    ) {
+      console.log('calculated');
+      console.log(fileJsons);
+      const result = calculatePlayerInfos(
+        fileJsons,
+        registeredPlayerNames,
+        storedAliases,
+      );
+      if (!Object.keys(result).length) {
+        console.log(fileJsons);
+        console.log(registeredPlayerNames);
+        alert('uhhhhh');
+        debugger;
+      }
+      return result;
+    }
+    console.log('not calculated');
+  }, [props.files, registeredPlayerNames, props.shouldProcess, fileJsons]);
+
+  useEffect(() => {
+    if (finalizedPlayerInfos && finalizedPlayerInfos.size) {
+      setBlep(finalizedPlayerInfos);
+    }
+  }, [finalizedPlayerInfos]);
 
   const renderStatsOverview = useMemo(() => {
-    if (!props.shouldProcess) return <></>;
+    console.log(`props.shouldProcess: ${props.shouldProcess}`);
+    console.log(finalizedPlayerInfos);
+    if (!props.shouldProcess || !finalizedPlayerInfos) return <></>;
 
     const columns = [
       'songCounts',
@@ -191,6 +126,7 @@ export function Tables(props: TablesProps) {
       'difficultyCorrectSum',
       'lockSpeedCorrectSum',
     ];
+    console.log('proceeded');
 
     return (
       <TableContainer>
@@ -201,9 +137,10 @@ export function Tables(props: TablesProps) {
             ))}
           </TableHead>
           <TableBody>
-            {Object.entries(finalizedPlayerInfos).map(([botName, stats]) => {
+            {Object.entries(blep).map(([botName, stats]) => {
+              console.log(`botName: ${botName}`);
               return (
-                <TableRow>
+                <TableRow key={`${botName}-row`}>
                   <TableCell key={botName}>{botName}</TableCell>
                   {columns.map((colName) => {
                     const [_unused, ...remainder] =
@@ -225,7 +162,7 @@ export function Tables(props: TablesProps) {
         </Table>
       </TableContainer>
     );
-  }, [finalizedPlayerInfos, props.shouldProcess]);
+  }, [blep, props.shouldProcess]);
 
   return (
     <div>
@@ -233,7 +170,7 @@ export function Tables(props: TablesProps) {
       <div>
         <p>teams</p>
         {registeredPlayerNames.map((team) => (
-          <p>{JSON.stringify(team)}</p>
+          <p key={JSON.stringify(team)}>{JSON.stringify(team)}</p>
         ))}
       </div>
       <div>{renderStatsOverview}</div>

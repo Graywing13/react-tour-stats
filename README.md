@@ -42,3 +42,8 @@ See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rule
 - [colab] How to use append https://medium.com/@jb.ranchana/write-and-append-dataframes-to-google-sheets-in-python-f62479460cf0
 - [ui] Material ui with tailwind https://mui.com/material-ui/integrations/tailwindcss/tailwindcss-v4/#vite-js-or-any-other-spa
 - [ui] Styling interior of components https://mui.com/material-ui/integrations/tailwindcss/tailwindcss-v4/#usage
+
+## learnings
+- If you're adding deleting and stuff from objects, maybe it's better to use a Map
+- Do NOT have multiple functions modify a map even if they are supposed to run sequentially
+- Filereader may execute some things later... https://stackoverflow.com/questions/42260524/array-length-is-zero-but-the-array-has-elements-in-it
