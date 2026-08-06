@@ -7,13 +7,14 @@ import type {
 } from '../common/types.ts';
 import * as _ from 'lodash';
 
-export function calculatePlayerInfos(
+export function parseJsons(
   jsons: JsonType[],
   registeredPlayerNames: string[][],
   storedAliases: AliasType,
 ) {
   const playerInfos = new Map<string, PlayerInfo>();
-  return doCalculate(jsons, registeredPlayerNames, storedAliases);
+  const jsonsWithZeroZero: (JsonType & { knownPlayers: string[] })[] = [];
+  return doParse(jsons, registeredPlayerNames, storedAliases);
 
   function tallyGame(json: JsonType, playersThisGame: string[]) {
     const songCountsThisGame = [0, 0, 0, 0];
@@ -44,23 +45,16 @@ export function calculatePlayerInfos(
     });
   }
 
-  function prepAndGetGamePlayers(
-    json: JsonType,
-    registeredPlayerNames: string[][],
-  ): string[] {
-    const playersThisGame = new Set<string>();
-    json.songs.some((song) => {
-      song.correctGuessPlayers.forEach((player) =>
-        playersThisGame.add(player.name),
-      );
-      song.listStates.forEach((player) => playersThisGame.add(player.name));
-      const shouldBreak = playersThisGame.size === 8;
-      return shouldBreak;
-    });
+  function prepAndGetGamePlayers(json: JsonType): string[] {
+    const playersThisGame = gatherPlayers(json);
     if (playersThisGame.size < 8) {
-      // TODO figure out who they are based on registeredPlayerNames
-      const error = `only ${playersThisGame.size} players found. people who went 0/0 will be missing stats. the other players are ${Array.from(playersThisGame)}`;
-      alert(error);
+      console.log(
+        `Only ${playersThisGame.size} players found in room name = ${json.roomName}, start time = ${json.startTime}. the other players are ${Array.from(playersThisGame)}. Adding the missing people back in later.`,
+      );
+      jsonsWithZeroZero.push({
+        knownPlayers: Array.from(playersThisGame),
+        ...json,
+      });
     } else if (playersThisGame.size > 8) {
       const error = `how you got ${playersThisGame.size} player ngmc... players are ${JSON.stringify(playersThisGame)}`;
       alert(error);
@@ -72,26 +66,37 @@ export function calculatePlayerInfos(
     return Array.from(playersThisGame);
   }
 
-  function doCalculate(
+  function gatherPlayers(json: JsonType) {
+    const playersThisGame = new Set<string>();
+    json.songs.some((song) => {
+      song.correctGuessPlayers.forEach((player) =>
+        playersThisGame.add(player.name),
+      );
+      song.listStates.forEach((player) => playersThisGame.add(player.name));
+      const shouldBreak = playersThisGame.size === 8;
+      return shouldBreak;
+    });
+    return playersThisGame;
+  }
+
+  function doParse(
     jsons: JsonType[],
     registeredPlayerNames: string[][],
     storedAliases: AliasType,
   ): Map<string, PlayerInfo> {
+    console.log('--[ Tallying jsons ]------------------------------');
     jsons.forEach((json: JsonType) => {
-      const playersThisGame = prepAndGetGamePlayers(
-        json,
-        registeredPlayerNames,
-      );
+      const playersThisGame = prepAndGetGamePlayers(json);
       tallyGame(json, playersThisGame);
     });
 
+    console.log('--[ Handling bot vs amq renames ]-----------------');
     const botNames = registeredPlayerNames.flat();
     const amqNamesDiffFromBot = _.difference(
       Array.from(playerInfos.keys()),
       botNames,
     );
     if (amqNamesDiffFromBot.length) {
-      console.log(amqNamesDiffFromBot);
       amqNamesDiffFromBot.forEach((amqName) => {
         const botName = findBotName(amqName, botNames, storedAliases);
         if (!botName) {
@@ -100,9 +105,50 @@ export function calculatePlayerInfos(
           throw new Error(err);
         }
         renameInObject(amqName, botName);
+        jsonsWithZeroZero.forEach((json) => {
+          json.knownPlayers = json.knownPlayers.map((currentAmqName) =>
+            currentAmqName === amqName ? botName : currentAmqName,
+          );
+        });
         console.log(`renamed ${amqName} -> ${botName}`);
       });
     }
+
+    console.log('--[ Handling 0/0s ]------------------------------');
+    if (jsonsWithZeroZero.length) {
+      jsonsWithZeroZero.forEach((json) => {
+        let allPlayers = [...json.knownPlayers];
+        json.knownPlayers.some((knownPlayer) => {
+          const knownPlayerTeam = registeredPlayerNames.find((team) =>
+            team.includes(knownPlayer),
+          );
+          if (knownPlayerTeam) {
+            const missingPlayers = _.difference(knownPlayerTeam, allPlayers);
+            if (missingPlayers.length) {
+              missingPlayers.forEach((missingPlayer) => {
+                console.log(
+                  `Copying ${knownPlayer}'s song counts to ${missingPlayer}`,
+                );
+                playerInfos.get(missingPlayer)!.songCounts = [
+                  ...playerInfos.get(knownPlayer)!.songCounts,
+                ];
+              });
+              allPlayers = _.union(allPlayers, knownPlayerTeam);
+              const shouldBreak = allPlayers.length === 8;
+              return shouldBreak;
+            }
+          }
+        });
+        if (allPlayers.length !== 8) {
+          const error = `Expected 8 players (${json.roomName}, ${json.startTime}). Actual: ${allPlayers.length}, namely ${JSON.stringify(allPlayers)}`;
+          throw new Error(error);
+        }
+      });
+      console.log(
+        `Successfully filled in players for ${jsonsWithZeroZero.length} games`,
+      );
+    }
+
     console.log('returning playerinfos');
     console.log(playerInfos);
     return playerInfos;
@@ -116,7 +162,7 @@ export function calculatePlayerInfos(
         lockSpeedCorrectSum: [0, 0, 0, 0],
         rigCounts: [0, 0, 0, 0],
         songCounts: [0, 0, 0, 0],
-        threeEightsCount: [0, 0, 0, 0],
+        ofEightOnCorrect: [0, 0, 0, 0, 0, 0, 0, 0, 0],
         sevenEightsCount: [0, 0, 0, 0],
       });
     }
@@ -134,9 +180,7 @@ export function calculatePlayerInfos(
       ? 0
       : songDifficulty;
     modified.lockSpeedCorrectSum[songType] += player.answerTime;
-    if (correctGuessCount <= 3) {
-      modified.threeEightsCount[songType]++;
-    }
+    modified.ofEightOnCorrect[correctGuessCount]++;
     playerInfos.set(player.name, modified);
   }
 
@@ -159,7 +203,6 @@ export function calculatePlayerInfos(
   }
 
   function renameInObject(oldName: string, newName: string) {
-    console.log(`doing rename: ${oldName} to ${newName}`);
     const oldObj = playerInfos.get(oldName);
     if (!oldObj) {
       const error = `could not rename player from ${oldName} to ${newName}`;

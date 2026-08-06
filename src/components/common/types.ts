@@ -43,7 +43,8 @@ export interface PlayerInfo {
   correctCounts: number[];
   difficultyCorrectSum: number[];
   lockSpeedCorrectSum: number[];
-  threeEightsCount: number[]; // is among the 1, 2, or 3 players that got this right
+  // array of 9. For every song this player got correct, whether they were out of the (0), 1, 2, 3, 4, 5, 6, 7, or 8 players correct
+  ofEightOnCorrect: number[];
   sevenEightsCount: number[]; // the only player that got this wrong
 }
 

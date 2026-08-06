@@ -135,6 +135,10 @@ export function InputZone(props: InputZoneProps) {
     const expectedLast0thIdxRow = Math.max(4, props.challongeData.length - 1);
     const expectedLast0thIdxCol = 6;
     const [header, ...rows] = props.challongeData;
+    const isTableOk =
+      !!props.challongeData[0]?.[0] &&
+      props.challongeData[expectedLast0thIdxRow]?.[expectedLast0thIdxCol] !=
+        null;
     return (
       <div className={subgroupClassname + ' flex'}>
         <div className={'flex flex-col w-2/5'}>
@@ -160,17 +164,20 @@ export function InputZone(props: InputZoneProps) {
           ></Input>
         </div>
         <Accordion>
-          <AccordionSummary>
-            Teams table{' '}
-            {props.challongeData[0]?.[0] &&
-            props.challongeData[expectedLast0thIdxRow]?.[
-              expectedLast0thIdxCol
-            ] != null
-              ? 'OK'
-              : props.challongeData[0][0].startsWith('Rank')
-                ? 'MISSING TEAMS'
-                : 'MISSING HEADER ROW'}{' '}
-            (click to expand)
+          <AccordionSummary
+            className={isTableOk ? 'bg-green-100' : 'bg-red-200'}
+          >
+            <p>
+              Teams table{' '}
+              <b>
+                {isTableOk
+                  ? 'OK'
+                  : props.challongeData[0][0].startsWith('Rank')
+                    ? 'MISSING TEAMS'
+                    : 'MISSING HEADER ROW'}
+              </b>{' '}
+              (click to expand)
+            </p>
           </AccordionSummary>
           <AccordionDetails>
             <TableContainer>

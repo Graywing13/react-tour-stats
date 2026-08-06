@@ -9,7 +9,7 @@ import {
   TableRow,
 } from '@mui/material';
 import { LS_KEY, useLocalStorage } from './util/useLocalStorage.ts';
-import { calculatePlayerInfos } from './compute/calculatePlayerInfos.ts';
+import { parseJsons } from './compute/parseJsons.ts';
 
 interface TablesProps {
   files: File[];
@@ -76,7 +76,7 @@ export function Tables(props: TablesProps) {
 
   useEffect(() => {
     console.log(`calculatePlayerInfos changed`);
-  }, [calculatePlayerInfos]);
+  }, [parseJsons]);
 
   useEffect(() => {
     readFileJsons(props.files).then((newJsons) => setFileJsons(newJsons));
@@ -88,7 +88,7 @@ export function Tables(props: TablesProps) {
       props.shouldProcess &&
       fileJsons.length
     ) {
-      const result = calculatePlayerInfos(
+      const result = parseJsons(
         fileJsons,
         registeredPlayerNames,
         storedAliases,
@@ -107,6 +107,7 @@ export function Tables(props: TablesProps) {
       'correctCounts',
       'difficultyCorrectSum',
       'lockSpeedCorrectSum',
+      'ofEightOnCorrect',
     ];
 
     function roundNumbers(numbersToRound: number[]) {
