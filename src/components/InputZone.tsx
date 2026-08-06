@@ -11,6 +11,7 @@ import {
   Radio,
   RadioGroup,
   Table,
+  TableBody,
   TableCell,
   TableContainer,
   TableHead,
@@ -36,7 +37,6 @@ export function InputZone(props: InputZoneProps) {
 
   const handleDropFiles = useCallback(
     (newFiles: File | File[]) => {
-      console.log(newFiles);
       const multiUploadCast = Array.from(newFiles as File[]);
       props.setFiles(multiUploadCast);
       props.onEdit();
@@ -134,6 +134,7 @@ export function InputZone(props: InputZoneProps) {
   const renderTeamsInput = useMemo(() => {
     const expectedLast0thIdxRow = Math.max(4, props.challongeData.length - 1);
     const expectedLast0thIdxCol = 6;
+    const [header, ...rows] = props.challongeData;
     return (
       <div className={subgroupClassname + ' flex'}>
         <div className={'flex flex-col w-2/5'}>
@@ -174,20 +175,25 @@ export function InputZone(props: InputZoneProps) {
           <AccordionDetails>
             <TableContainer>
               <Table>
-                {props.challongeData.map((row, rowIdx) => {
-                  const cells = row.map((content, colIdx) => (
-                    <TableCell key={`${content}-${rowIdx}-${colIdx}`}>
-                      {content}
-                    </TableCell>
-                  ));
-                  return rowIdx === 0 ? (
-                    <TableHead key={`row-${row[0]}`}>
-                      <TableRow>{cells}</TableRow>
-                    </TableHead>
-                  ) : (
-                    <TableRow key={`row-${row[0]}`}>{cells}</TableRow>
-                  );
-                })}
+                <TableHead key={`row-${header[0]}`}>
+                  <TableRow>
+                    {header.map((content, colIdx) => (
+                      <TableCell key={`${content}-head-${colIdx}`}>
+                        {content}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row, rowIdx) => {
+                    const cells = row.map((content, colIdx) => (
+                      <TableCell key={`${content}-${rowIdx}-${colIdx}`}>
+                        {content}
+                      </TableCell>
+                    ));
+                    return <TableRow key={`row-${row[0]}`}>{cells}</TableRow>;
+                  })}
+                </TableBody>
               </Table>
             </TableContainer>
           </AccordionDetails>

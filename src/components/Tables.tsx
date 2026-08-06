@@ -20,7 +20,6 @@ interface TablesProps {
 export function Tables(props: TablesProps) {
   const [storedAliases] = useLocalStorage<AliasType>(LS_KEY.SITE_ALIASES, {});
   const [fileJsons, setFileJsons] = useState<JsonType[]>([]);
-  const [blep, setBlep] = useState<Map<string, PlayerInfo>>(new Map()); // todo temp idk why race condition
 
   const registeredPlayerNames = useMemo(() => {
     if (!props.shouldProcess) return [];
@@ -52,7 +51,6 @@ export function Tables(props: TablesProps) {
       await new Promise((resolve, reject) => {
         // https://stackoverflow.com/questions/75599571/filereader-should-complete-onload-function-first-then-process-further
         reader.onload = () => {
-          console.log('****Inside on Load*****');
           try {
             const raw = reader.result!.toString();
             const parsed = JSON.parse(raw);
@@ -90,33 +88,17 @@ export function Tables(props: TablesProps) {
       props.shouldProcess &&
       fileJsons.length
     ) {
-      console.log('calculated');
-      console.log(fileJsons);
       const result = calculatePlayerInfos(
         fileJsons,
         registeredPlayerNames,
         storedAliases,
       );
-      if (!Object.keys(result).length) {
-        console.log(fileJsons);
-        console.log(registeredPlayerNames);
-        alert('uhhhhh');
-        debugger;
-      }
+      console.log(result);
       return result;
     }
-    console.log('not calculated');
   }, [props.files, registeredPlayerNames, props.shouldProcess, fileJsons]);
 
-  useEffect(() => {
-    if (finalizedPlayerInfos && finalizedPlayerInfos.size) {
-      setBlep(finalizedPlayerInfos);
-    }
-  }, [finalizedPlayerInfos]);
-
   const renderStatsOverview = useMemo(() => {
-    console.log(`props.shouldProcess: ${props.shouldProcess}`);
-    console.log(finalizedPlayerInfos);
     if (!props.shouldProcess || !finalizedPlayerInfos) return <></>;
 
     const columns = [
@@ -126,43 +108,50 @@ export function Tables(props: TablesProps) {
       'difficultyCorrectSum',
       'lockSpeedCorrectSum',
     ];
-    console.log('proceeded');
+
+    function roundNumbers(numbersToRound: number[]) {
+      return JSON.stringify(
+        numbersToRound
+          .map((num: number) => Math.round(num * 1000) / 1000)
+          .join(' / '),
+      );
+    }
 
     return (
       <TableContainer>
         <Table>
           <TableHead>
-            {['person name', ...columns].map((name) => (
-              <TableCell key={`header-${name}`}>{name}</TableCell>
-            ))}
+            <TableRow>
+              {['person name', ...columns].map((name) => (
+                <TableCell key={`header-${name}`}>{name}</TableCell>
+              ))}
+            </TableRow>
           </TableHead>
           <TableBody>
-            {Object.entries(blep).map(([botName, stats]) => {
-              console.log(`botName: ${botName}`);
-              return (
-                <TableRow key={`${botName}-row`}>
-                  <TableCell key={botName}>{botName}</TableCell>
-                  {columns.map((colName) => {
-                    const [_unused, ...remainder] =
-                      stats[colName as keyof PlayerInfo]; // trust me bro but fix later
-                    return (
-                      <TableCell key={`${botName}-${remainder}`}>
-                        {JSON.stringify(
-                          remainder
-                            .map((num: number) => Math.round(num * 1000) / 1000)
-                            .join(' / '),
-                        )}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-            })}
+            {Object.entries(Object.fromEntries(finalizedPlayerInfos)).map(
+              ([botName, stats]) => {
+                return (
+                  <TableRow key={`${botName}-row`}>
+                    <TableCell key={botName}>{botName}</TableCell>
+                    {columns.map((colName) => {
+                      const [_unused, ...remainder] =
+                        stats[colName as keyof PlayerInfo]; // trust me bro but fix later
+                      const formatted = roundNumbers(remainder);
+                      return (
+                        <TableCell key={`${botName}-${formatted}`}>
+                          {formatted}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              },
+            )}
           </TableBody>
         </Table>
       </TableContainer>
     );
-  }, [blep, props.shouldProcess]);
+  }, [finalizedPlayerInfos, props.shouldProcess]);
 
   return (
     <div>

@@ -13,7 +13,6 @@ export function calculatePlayerInfos(
   storedAliases: AliasType,
 ) {
   const playerInfos = new Map<string, PlayerInfo>();
-  console.log('hi');
   return doCalculate(jsons, registeredPlayerNames, storedAliases);
 
   function tallyGame(json: JsonType, playersThisGame: string[]) {
@@ -33,7 +32,6 @@ export function calculatePlayerInfos(
       song.listStates.forEach((listState) => {
         const modified = playerInfos.get(listState.name)!;
         modified.rigCounts[songType] += 1;
-        console.log('35 modifying');
         playerInfos.set(listState.name, modified);
       });
     });
@@ -41,7 +39,6 @@ export function calculatePlayerInfos(
       songCountsThisGame.forEach((count, songType) => {
         const modified = playerInfos.get(playerName)!;
         modified.songCounts[songType] += count;
-        console.log('43 modifying');
         playerInfos.set(playerName, modified);
       });
     });
@@ -80,22 +77,12 @@ export function calculatePlayerInfos(
     registeredPlayerNames: string[][],
     storedAliases: AliasType,
   ): Map<string, PlayerInfo> {
-    console.log(jsons.length);
-    console.log(jsons);
-    console.log(jsons[0]);
-    const lol = [0, 1, 2];
-    console.log(lol);
-    debugger;
     jsons.forEach((json: JsonType) => {
-      console.log('ba');
       const playersThisGame = prepAndGetGamePlayers(
         json,
         registeredPlayerNames,
       );
-      console.log(playersThisGame);
-      console.log(playerInfos);
       tallyGame(json, playersThisGame);
-      console.log(playerInfos);
     });
 
     const botNames = registeredPlayerNames.flat();
@@ -104,6 +91,7 @@ export function calculatePlayerInfos(
       botNames,
     );
     if (amqNamesDiffFromBot.length) {
+      console.log(amqNamesDiffFromBot);
       amqNamesDiffFromBot.forEach((amqName) => {
         const botName = findBotName(amqName, botNames, storedAliases);
         if (!botName) {
@@ -112,14 +100,16 @@ export function calculatePlayerInfos(
           throw new Error(err);
         }
         renameInObject(amqName, botName);
+        console.log(`renamed ${amqName} -> ${botName}`);
       });
     }
+    console.log('returning playerinfos');
+    console.log(playerInfos);
     return playerInfos;
   }
 
   function initializePlayer(name: string) {
     if (!playerInfos.get(name)) {
-      console.log('111 modifying');
       playerInfos.set(name, {
         correctCounts: [0, 0, 0, 0],
         difficultyCorrectSum: [0, 0, 0, 0],
@@ -147,7 +137,6 @@ export function calculatePlayerInfos(
     if (correctGuessCount <= 3) {
       modified.threeEightsCount[songType]++;
     }
-    console.log('141 modifying');
     playerInfos.set(player.name, modified);
   }
 
@@ -170,16 +159,13 @@ export function calculatePlayerInfos(
   }
 
   function renameInObject(oldName: string, newName: string) {
+    console.log(`doing rename: ${oldName} to ${newName}`);
     const oldObj = playerInfos.get(oldName);
     if (!oldObj) {
       const error = `could not rename player from ${oldName} to ${newName}`;
       alert(error);
       throw new Error(error);
     }
-    console.log(
-      `Renaming ${oldName} to ${newName}. Data: ${JSON.stringify(oldObj)}`,
-    );
-    console.log('172 modifying');
     playerInfos.set(newName, oldObj);
     playerInfos.delete(oldName);
   }
