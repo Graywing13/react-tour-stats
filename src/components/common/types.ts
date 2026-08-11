@@ -27,10 +27,23 @@ export interface JsonType {
   startTime: string;
 }
 
-export interface SheetMetadataType {
-  sheetId: string;
-  apiKey: string;
-}
+export const API_KEY_FIELD = [
+  'type',
+  'project_id',
+  'private_key_id',
+  'private_key',
+  'client_email',
+  'client_id',
+  'auth_uri',
+  'token_uri',
+  'auth_provider_x509_cert_url',
+  'client_x509_cert_url',
+  'universe_domain',
+];
+
+export type SheetApiKeyType = {
+  [property: (typeof API_KEY_FIELD)[number]]: string;
+};
 
 export interface AliasType {
   [botName: string]: string[];
@@ -46,8 +59,4 @@ export interface PlayerInfo {
   // array of 9. For every song this player got correct, whether they were out of the (0), 1, 2, 3, 4, 5, 6, 7, or 8 players correct
   ofEightOnCorrect: number[];
   sevenEightsCount: number[]; // the only player that got this wrong
-}
-
-export interface PlayerInfos {
-  [username: string]: PlayerInfo;
 }

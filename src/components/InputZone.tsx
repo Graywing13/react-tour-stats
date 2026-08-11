@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { ChevronDownIcon } from '@storybook/icons';
 import { GAME_MODES } from '../../SETTINGS.ts';
+import { INPUT_FIELD_CLASSNAME } from '../shared/styles.ts';
 
 interface InputZoneProps {
   files: File[];
@@ -116,7 +117,7 @@ export function InputZone(props: InputZoneProps) {
   const renderRadioOption = useMemo(() => {
     return (
       <div className={subgroupClassname}>
-        <label htmlFor={'gamemode-selector'}>Mode</label>
+        <label htmlFor={'gamemode-selector'}>1a) Mode</label>
         <RadioGroup
           id={'gamemode-selector'}
           value={props.gamemode}
@@ -140,10 +141,10 @@ export function InputZone(props: InputZoneProps) {
       props.challongeData[expectedLast0thIdxRow]?.[expectedLast0thIdxCol] !=
         null;
     return (
-      <div className={subgroupClassname + ' flex'}>
-        <div className={'flex flex-col w-2/5'}>
-          <label>Challonge Table</label>
-          <ul className={'list-disc'}>
+      <div className={subgroupClassname}>
+        <div className={'flex flex-col'}>
+          <label>1b) Challonge Table</label>
+          <ul className={'list-disc pl-4'}>
             <li className={'text-sm'}>
               Go to the challonge link and copy the results table at the bottom
             </li>
@@ -159,8 +160,8 @@ export function InputZone(props: InputZoneProps) {
               props.setChallongeData(parseChallongeStr(e.target.value));
               props.onEdit();
             }}
-            className={'bg-white'}
-            placeholder={'Paste challonge results here'}
+            className={INPUT_FIELD_CLASSNAME}
+            placeholder={'ACTION: Paste challonge results here'}
           ></Input>
         </div>
         <Accordion>
@@ -180,6 +181,9 @@ export function InputZone(props: InputZoneProps) {
             </p>
           </AccordionSummary>
           <AccordionDetails>
+            {header.length === 1 &&
+              header[0].trim() === '' &&
+              'Insert data in input box above first'}
             <TableContainer>
               <Table>
                 <TableHead key={`row-${header[0]}`}>
@@ -219,7 +223,7 @@ export function InputZone(props: InputZoneProps) {
       {renderRadioOption}
       {renderTeamsInput}
       <div className={subgroupClassname}>
-        <label>JSONs</label>
+        <label>1c) JSONs</label>
         <FileUploader
           label={'Upload files here'}
           multiple={true}

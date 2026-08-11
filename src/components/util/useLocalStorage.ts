@@ -5,7 +5,7 @@ const LOCALSTORAGE_VERSION = 0.1;
 export const LS_KEY = {
   LS_VERSION: 'app_lsVersion',
   SITE_ALIASES: 'tour_aliases',
-  SHEET_METADATA: 'tour_sheetMetadata',
+  SHEET_API_KEY: 'tour_sheetApiKey',
 };
 type LS_KEY = (typeof LS_KEY)[keyof typeof LS_KEY];
 

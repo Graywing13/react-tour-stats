@@ -1,15 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { AliasType, JsonType, PlayerInfo } from './common/types.ts';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
-import { LS_KEY, useLocalStorage } from './util/useLocalStorage.ts';
-import { parseJsons } from './compute/parseJsons.ts';
+import { TableContainer } from '@mui/material';
+import RawData from './RawData.tsx';
+import type { AliasType, JsonType } from '../common/types.ts';
+import { LS_KEY, useLocalStorage } from '../util/useLocalStorage.ts';
+import { parseJsons } from '../compute/parseJsons.ts';
 
 interface TablesProps {
   files: File[];
@@ -101,62 +95,15 @@ export function Tables(props: TablesProps) {
   const renderStatsOverview = useMemo(() => {
     if (!props.shouldProcess || !finalizedPlayerInfos) return <></>;
 
-    const columns = [
-      'songCounts',
-      'rigCounts',
-      'correctCounts',
-      'difficultyCorrectSum',
-      'lockSpeedCorrectSum',
-      'ofEightOnCorrect',
-    ];
-
-    function roundNumbers(numbersToRound: number[]) {
-      return JSON.stringify(
-        numbersToRound
-          .map((num: number) => Math.round(num * 1000) / 1000)
-          .join(' / '),
-      );
-    }
-
     return (
       <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {['person name', ...columns].map((name) => (
-                <TableCell key={`header-${name}`}>{name}</TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Object.entries(Object.fromEntries(finalizedPlayerInfos)).map(
-              ([botName, stats]) => {
-                return (
-                  <TableRow key={`${botName}-row`}>
-                    <TableCell key={botName}>{botName}</TableCell>
-                    {columns.map((colName) => {
-                      const [_unused, ...remainder] =
-                        stats[colName as keyof PlayerInfo]; // trust me bro but fix later
-                      const formatted = roundNumbers(remainder);
-                      return (
-                        <TableCell key={`${botName}-${formatted}`}>
-                          {formatted}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              },
-            )}
-          </TableBody>
-        </Table>
+        <RawData finalizedPlayerInfos={finalizedPlayerInfos} />
       </TableContainer>
     );
   }, [finalizedPlayerInfos, props.shouldProcess]);
 
   return (
     <div>
-      Tables<span>(WIP) download img by clicking button</span>
       <div>
         <p>teams</p>
         {registeredPlayerNames.map((team) => (

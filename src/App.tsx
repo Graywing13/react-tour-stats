@@ -1,7 +1,7 @@
 import './App.css';
 import { LS_KEY, useLocalStorage } from './components/util/useLocalStorage.ts';
 import { InputZone } from './components/InputZone.tsx';
-import { Tables } from './components/Tables.tsx';
+import { Tables } from './components/tables/Tables.tsx';
 import { useState } from 'react';
 import { ExportToSheet } from './components/ExportToSheet.tsx';
 import { GAME_MODES } from '../SETTINGS.ts';
@@ -51,7 +51,7 @@ function App() {
         onNext={() => {
           setOnStep(STEPS.DISCORD);
         }}
-        nextText={'Make Tables'}
+        nextText={'1d) Make Tables'}
       >
         <InputZone
           className={'pt-2 pb-2 pl-4 pr-4'}

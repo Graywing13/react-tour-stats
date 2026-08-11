@@ -43,7 +43,7 @@ See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rule
 - [ui] Material ui with tailwind https://mui.com/material-ui/integrations/tailwindcss/tailwindcss-v4/#vite-js-or-any-other-spa
 - [ui] Styling interior of components https://mui.com/material-ui/integrations/tailwindcss/tailwindcss-v4/#usage
 - [gh-pages] Deploying to Github Pages https://medium.com/@aishwaryaparab1/deploying-vite-deploying-vite-app-to-github-pages-166fff40ffd3
-   - In the network tab 
+   - In the network tab it should not load main.tsx. The base site should not contain any tsx within <script /> tags.
 
 ## learnings
 - If you're adding deleting and stuff from objects, maybe it's better to use a Map
