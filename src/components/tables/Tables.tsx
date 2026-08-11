@@ -6,15 +6,24 @@ import {
   TableContainer,
 } from '@mui/material';
 import RawData from './RawData.tsx';
-import type { AliasType, JsonType } from '../common/types.ts';
+import type {
+  AliasType,
+  DerivedPlayerInfosType,
+  DerivedPlayerInfoType,
+  JsonType,
+} from '../common/types.ts';
 import { LS_KEY, useLocalStorage } from '../util/useLocalStorage.ts';
 import { parseJsons } from '../compute/parseJsons.ts';
 import { ChevronDownIcon } from '@storybook/icons';
+import { StatsMain } from './StatsMain.tsx';
+import { SHEET_COLUMNS } from './tableDataTypes.ts';
 
 interface TablesProps {
   files: File[];
   shouldProcess: boolean;
   challongeData: string[][];
+  derivedPlayerInfos: DerivedPlayerInfosType;
+  setDerivedPlayerInfos: (newInfos: DerivedPlayerInfosType) => void;
 }
 
 export function Tables(props: TablesProps) {
@@ -67,18 +76,6 @@ export function Tables(props: TablesProps) {
   }, []);
 
   useEffect(() => {
-    console.log(`registeredPlayerNames changed ${registeredPlayerNames}`);
-  }, [registeredPlayerNames]);
-
-  useEffect(() => {
-    console.log(`shouldProcess changed ${props.shouldProcess}`);
-  }, [props.shouldProcess]);
-
-  useEffect(() => {
-    console.log(`calculatePlayerInfos changed`);
-  }, [parseJsons]);
-
-  useEffect(() => {
     readFileJsons(props.files).then((newJsons) => setFileJsons(newJsons));
   }, [readFileJsons, props.files]);
 
@@ -98,6 +95,30 @@ export function Tables(props: TablesProps) {
     }
   }, [props.files, registeredPlayerNames, props.shouldProcess, fileJsons]);
 
+  useEffect(() => {
+    if (!finalizedPlayerInfos) return;
+    const array: [string, DerivedPlayerInfoType][] = Object.entries(
+      Object.fromEntries(finalizedPlayerInfos),
+    ).map(([botName, playerInfo]) => {
+      const statsForPlayer: [string, string | number][] = Object.entries(
+        SHEET_COLUMNS,
+      ).map(([columnName, columnData]) => {
+        return [columnName, columnData.fn(playerInfo)];
+      });
+      const derivedPlayerInfo: DerivedPlayerInfoType =
+        Object.fromEntries(statsForPlayer);
+      return [botName, derivedPlayerInfo];
+    });
+    array.sort((playerA, playerB) => {
+      const aStats = playerA[1] as DerivedPlayerInfoType;
+      const bStats = playerB[1] as DerivedPlayerInfoType;
+      return (
+        (bStats['Guess rate'] as number) - (aStats['Guess rate'] as number)
+      );
+    });
+    props.setDerivedPlayerInfos(Object.fromEntries(array));
+  }, [finalizedPlayerInfos]);
+
   const renderJsonExtraction = useMemo(() => {
     if (!props.shouldProcess || !finalizedPlayerInfos) return <></>;
 
@@ -110,6 +131,10 @@ export function Tables(props: TablesProps) {
 
   return (
     <div>
+      <p>THIS IS NOT FORMATTED YET but to give you a preview heh.</p>
+      {finalizedPlayerInfos && (
+        <StatsMain derivedPlayerInfos={props.derivedPlayerInfos} />
+      )}
       <Accordion>
         <AccordionSummary expandIcon={<ChevronDownIcon />}>
           Raw data extracted from json/challonge

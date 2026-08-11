@@ -1,3 +1,5 @@
+import { SHEET_COLUMNS } from '../tables/tableDataTypes.ts';
+
 export const SONG_TYPES = {
   OP: 1,
   ED: 2,
@@ -50,6 +52,7 @@ export interface AliasType {
 }
 
 export interface PlayerInfo {
+  playerName: string;
   // The following are arrays with length 4. idx 0 = nothing, 1 = op, 2 = ed, 3 = in
   songCounts: number[];
   rigCounts: number[];
@@ -58,5 +61,13 @@ export interface PlayerInfo {
   lockSpeedCorrectSum: number[];
   // array of 9. For every song this player got correct, whether they were out of the (0), 1, 2, 3, 4, 5, 6, 7, or 8 players correct
   ofEightOnCorrect: number[];
-  sevenEightsCount: number[]; // the only player that got this wrong
+  sevenEightedCount: number[]; // the only player that got this wrong
 }
+
+export type DerivedPlayerInfoType = {
+  [key: keyof typeof SHEET_COLUMNS]: string | number;
+};
+
+export type DerivedPlayerInfosType = {
+  [botName: string]: DerivedPlayerInfoType;
+};

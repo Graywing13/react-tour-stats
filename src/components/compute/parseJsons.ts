@@ -157,13 +157,14 @@ export function parseJsons(
   function initializePlayer(name: string) {
     if (!playerInfos.get(name)) {
       playerInfos.set(name, {
+        playerName: name,
         correctCounts: [0, 0, 0, 0],
         difficultyCorrectSum: [0, 0, 0, 0],
         lockSpeedCorrectSum: [0, 0, 0, 0],
         rigCounts: [0, 0, 0, 0],
         songCounts: [0, 0, 0, 0],
         ofEightOnCorrect: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        sevenEightsCount: [0, 0, 0, 0],
+        sevenEightedCount: [0, 0, 0, 0],
       });
     }
   }

@@ -164,7 +164,7 @@ export function InputZone(props: InputZoneProps) {
             placeholder={'ACTION: Paste challonge results here'}
           ></Input>
         </div>
-        <Accordion>
+        <Accordion className={'mt-2'}>
           <AccordionSummary
             className={isTableOk ? 'bg-green-100' : 'bg-red-200'}
             expandIcon={<ChevronDownIcon />}

@@ -7,6 +7,7 @@ import { ExportToSheet } from './components/ExportToSheet.tsx';
 import { GAME_MODES } from '../SETTINGS.ts';
 import { Segment } from './components/common/Segment.tsx';
 import { Setup } from './components/Setup.tsx';
+import { SHEET_COLUMNS } from './components/tables/tableDataTypes.ts';
 
 const APP_VERSION = 0.1;
 
@@ -26,6 +27,9 @@ function App() {
     useState<keyof typeof GAME_MODES>('WATCHED_0_40');
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [challongeData, setChallongeData] = useState<string[][]>([['']]);
+  const [derivedPlayerInfos, setDerivedPlayerInfos] = useState<{
+    [botName: string]: keyof typeof SHEET_COLUMNS;
+  }>({});
 
   return (
     <div className={'text-left'}>
@@ -77,6 +81,8 @@ function App() {
           files={uploadedFiles}
           shouldProcess={onStep === STEPS.DISCORD}
           challongeData={challongeData}
+          derivedPlayerInfos={derivedPlayerInfos}
+          setDerivedPlayerInfos={setDerivedPlayerInfos}
         />
       </Segment>
       <Segment

@@ -41,8 +41,13 @@ export default function RawData(props: RawDataProps) {
               <TableRow key={`${botName}-row`}>
                 <TableCell key={botName}>{botName}</TableCell>
                 {columns.map((colName) => {
-                  const [_unused, ...remainder] =
-                    stats[colName as keyof PlayerInfo]; // trust me bro but fix later
+                  const value = stats[colName as keyof PlayerInfo]; // trust me bro but fix later
+                  if (typeof value === 'string') {
+                    return (
+                      <>note to dev: remove this column name from columns!</>
+                    );
+                  }
+                  const [_unused, ...remainder] = value;
                   const formatted = roundNumbers(remainder);
                   return (
                     <TableCell key={`${botName}-${formatted}`}>
