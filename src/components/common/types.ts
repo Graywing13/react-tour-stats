@@ -67,7 +67,3 @@ export interface PlayerInfo {
 export type DerivedPlayerInfoType = {
   [key: keyof typeof SHEET_COLUMNS]: string | number;
 };
-
-export type DerivedPlayerInfosType = {
-  [botName: string]: DerivedPlayerInfoType;
-};

@@ -7,7 +7,7 @@ import { ExportToSheet } from './components/ExportToSheet.tsx';
 import { GAME_MODES } from '../SETTINGS.ts';
 import { Segment } from './components/common/Segment.tsx';
 import { Setup } from './components/Setup.tsx';
-import { SHEET_COLUMNS } from './components/tables/tableDataTypes.ts';
+import type { DerivedPlayerInfoType } from './components/common/types.ts';
 
 const APP_VERSION = 0.1;
 
@@ -28,7 +28,7 @@ function App() {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [challongeData, setChallongeData] = useState<string[][]>([['']]);
   const [derivedPlayerInfos, setDerivedPlayerInfos] = useState<{
-    [botName: string]: keyof typeof SHEET_COLUMNS;
+    [botName: string]: DerivedPlayerInfoType;
   }>({});
 
   return (

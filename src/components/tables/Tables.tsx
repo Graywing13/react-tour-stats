@@ -8,7 +8,6 @@ import {
 import RawData from './RawData.tsx';
 import type {
   AliasType,
-  DerivedPlayerInfosType,
   DerivedPlayerInfoType,
   JsonType,
 } from '../common/types.ts';
@@ -22,8 +21,12 @@ interface TablesProps {
   files: File[];
   shouldProcess: boolean;
   challongeData: string[][];
-  derivedPlayerInfos: DerivedPlayerInfosType;
-  setDerivedPlayerInfos: (newInfos: DerivedPlayerInfosType) => void;
+  derivedPlayerInfos: {
+    [botName: string]: DerivedPlayerInfoType;
+  };
+  setDerivedPlayerInfos: (newInfos: {
+    [botName: string]: DerivedPlayerInfoType;
+  }) => void;
 }
 
 export function Tables(props: TablesProps) {

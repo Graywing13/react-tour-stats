@@ -5,12 +5,14 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import type { DerivedPlayerInfosType } from '../common/types.ts';
+import type { DerivedPlayerInfoType } from '../common/types.ts';
 import { SHEET_COLUMNS } from './tableDataTypes.ts';
 import { roundIfNumber } from '../../formatters.ts';
 
 interface StatsMainProps {
-  derivedPlayerInfos: DerivedPlayerInfosType;
+  derivedPlayerInfos: {
+    [botName: string]: DerivedPlayerInfoType;
+  };
 }
 
 export function StatsMain(props: StatsMainProps) {
