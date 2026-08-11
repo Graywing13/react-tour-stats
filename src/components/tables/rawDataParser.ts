@@ -78,11 +78,11 @@ export function getInGuessRate(playerInfo: PlayerInfo) {
 
 // compared to lobby pt 2
 
-export function getTotalX0s(playerInfo: PlayerInfo) {
+export function getTotalX0s() {
   return 'idk';
 }
 
-export function getTotal1Xs(playerInfo: PlayerInfo) {
+export function getTotal1Xs() {
   return 'idk';
 }
 
@@ -142,32 +142,32 @@ export function getRigs(playerInfo: PlayerInfo) {
   return sum(playerInfo.rigCounts);
 }
 
-export function getSoloRigs(playerInfo: PlayerInfo) {
+export function getSoloRigs() {
   return 'dont have this info yet';
 }
 
-export function getMissedSolos(playerInfo: PlayerInfo) {
+export function getMissedSolos() {
   return 'dont have this info yet';
 }
 
-export function getRigsHit(playerInfo: PlayerInfo) {
+export function getRigsHit() {
   return 'dont have this info yet';
 }
 
-export function getRigsMissed(playerInfo: PlayerInfo) {
+export function getRigsMissed() {
   return 'dont have this info yet';
 }
 
-export function getLivesLostOnRigs(playerInfo: PlayerInfo) {
+export function getLivesLostOnRigs() {
   return 'dont have this info yet';
 }
 
-export function getOfflistErigs(playerInfo: PlayerInfo) {
+export function getOfflistErigs() {
   return 'dont have this info yet';
 }
 
 // your rig, others' performance
 
-export function getAvgEightOfRigs(playerInfo: PlayerInfo) {
+export function getAvgEightOfRigs() {
   return 'dont have this info yet';
 }
