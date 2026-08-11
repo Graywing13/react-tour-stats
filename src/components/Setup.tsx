@@ -12,6 +12,7 @@ import {
 } from './common/types.ts';
 import { useMemo } from 'react';
 import { INPUT_FIELD_CLASSNAME } from '../shared/styles.ts';
+import { ChevronDownIcon } from '@storybook/icons';
 
 export function Setup() {
   const [aliases, setAliases] = useLocalStorage<AliasType>(
@@ -31,7 +32,10 @@ export function Setup() {
 
   return (
     <Accordion>
-      <AccordionSummary className={isNeedsSetup ? 'bg-orange-300' : ''}>
+      <AccordionSummary
+        className={isNeedsSetup ? 'bg-orange-300' : ''}
+        expandIcon={<ChevronDownIcon />}
+      >
         <p>
           {isNeedsSetup && <b>CLICK TO SETUP</b>} One-time setup / settings
           (click to expand)

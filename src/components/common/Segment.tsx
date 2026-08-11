@@ -26,12 +26,12 @@ export function Segment(props: SegmentProps) {
         </div>
       )}
       <h2 className={headerClassname}>{props.title}</h2>
-      {props.children || <></>}
+      <div className={'px-4'}>{props.children || <></>}</div>
       {props.onNext && props.nextText && (
         <Button
           variant={'contained'}
           onClick={props.onNext}
-          className={'normal-case ml-4'}
+          className={'normal-case ml-4 mt-2'}
         >
           {props.nextText}
         </Button>

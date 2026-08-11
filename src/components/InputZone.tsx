@@ -167,6 +167,7 @@ export function InputZone(props: InputZoneProps) {
         <Accordion>
           <AccordionSummary
             className={isTableOk ? 'bg-green-100' : 'bg-red-200'}
+            expandIcon={<ChevronDownIcon />}
           >
             <p>
               Teams table{' '}
@@ -176,8 +177,7 @@ export function InputZone(props: InputZoneProps) {
                   : props.challongeData[0][0].startsWith('Rank')
                     ? 'MISSING TEAMS'
                     : 'MISSING HEADER ROW'}
-              </b>{' '}
-              (click to expand)
+              </b>
             </p>
           </AccordionSummary>
           <AccordionDetails>

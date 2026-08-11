@@ -54,7 +54,7 @@ function App() {
         nextText={'1d) Make Tables'}
       >
         <InputZone
-          className={'pt-2 pb-2 pl-4 pr-4'}
+          className={'pt-2 pb-2'}
           files={uploadedFiles}
           setFiles={setUploadedFiles}
           gamemode={gamemode}

@@ -1,9 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { TableContainer } from '@mui/material';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  TableContainer,
+} from '@mui/material';
 import RawData from './RawData.tsx';
 import type { AliasType, JsonType } from '../common/types.ts';
 import { LS_KEY, useLocalStorage } from '../util/useLocalStorage.ts';
 import { parseJsons } from '../compute/parseJsons.ts';
+import { ChevronDownIcon } from '@storybook/icons';
 
 interface TablesProps {
   files: File[];
@@ -92,7 +98,7 @@ export function Tables(props: TablesProps) {
     }
   }, [props.files, registeredPlayerNames, props.shouldProcess, fileJsons]);
 
-  const renderStatsOverview = useMemo(() => {
+  const renderJsonExtraction = useMemo(() => {
     if (!props.shouldProcess || !finalizedPlayerInfos) return <></>;
 
     return (
@@ -104,13 +110,20 @@ export function Tables(props: TablesProps) {
 
   return (
     <div>
-      <div>
-        <p>teams</p>
-        {registeredPlayerNames.map((team) => (
-          <p key={JSON.stringify(team)}>{JSON.stringify(team)}</p>
-        ))}
-      </div>
-      <div>{renderStatsOverview}</div>
+      <Accordion>
+        <AccordionSummary expandIcon={<ChevronDownIcon />}>
+          Raw data extracted from json/challonge
+        </AccordionSummary>
+        <AccordionDetails>
+          <div>
+            <p>teams</p>
+            {registeredPlayerNames.map((team) => (
+              <p key={JSON.stringify(team)}>{JSON.stringify(team)}</p>
+            ))}
+          </div>
+          <div>{renderJsonExtraction}</div>
+        </AccordionDetails>
+      </Accordion>
     </div>
   );
 }
