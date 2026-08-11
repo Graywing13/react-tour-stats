@@ -1,6 +1,6 @@
 export const GAME_MODES = {
-  USUAL: { name: 'Random 0-100', sheetTitle: 'Usual' },
-  WATCHED_0_40: { name: 'Watched 0-40', sheetTitle: 'Usual' },
-  OTHER: { name: 'Other', sheetTitle: 'Other' },
-  TEST: { name: 'Script testing', sheetTitle: 'Testland' },
+  USUAL: { label: 'Random 0-100', sheetTitle: 'Random' },
+  WATCHED_0_40: { label: 'Watched 0-40', sheetTitle: 'Watched' },
+  OTHER: { label: 'Other', sheetTitle: 'Other' },
+  TEST: { label: 'Script testing', sheetTitle: 'Testland' },
 };

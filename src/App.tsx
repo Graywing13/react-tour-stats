@@ -34,7 +34,9 @@ function App() {
   return (
     <div className={'text-left'}>
       <div className={'text-center'}>
-        <h1> 🐜 🫐 🐜 🫐 🐜 🫐 🐜 Ant stats 🐜 🫐 🐜 🫐 🐜 🫐 🐜</h1>
+        <h1>
+          🐜 🫐 👯 🐜 🫐 👯 🐜 🫐 👯 🐜 Ant stats 🐜 🫐 👯 🐜 🫐 👯 🐜 🫐 👯 🐜
+        </h1>
         <p className={'text-gray-400 italic text-sm pb-4'}>
           An ant, a small, industrious insect that lives in a colony. May be
           used to represent ants specifically, as well as various insects or
@@ -95,7 +97,10 @@ function App() {
         }}
         nextText={'ur done but here have a button'}
       >
-        <ExportToSheet />
+        <ExportToSheet
+          gameMode={gamemode}
+          derivedPlayerInfos={derivedPlayerInfos}
+        />
       </Segment>
       <Segment onStep={onStep} segmentIdx={STEPS.DONE} title={'Done!'} />
       <div

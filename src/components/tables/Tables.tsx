@@ -122,6 +122,10 @@ export function Tables(props: TablesProps) {
     props.setDerivedPlayerInfos(Object.fromEntries(array));
   }, [finalizedPlayerInfos]);
 
+  useEffect(() => {
+    console.log(props.derivedPlayerInfos);
+  }, [props.derivedPlayerInfos]);
+
   const renderJsonExtraction = useMemo(() => {
     if (!props.shouldProcess || !finalizedPlayerInfos) return <></>;
 

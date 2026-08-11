@@ -55,7 +55,7 @@ export function InputZone(props: InputZoneProps) {
         key={modeId}
         value={modeId}
         control={<Radio />}
-        label={mode.name}
+        label={mode.label}
       />
     ));
   }, []);
@@ -166,7 +166,7 @@ export function InputZone(props: InputZoneProps) {
         </div>
         <Accordion className={'mt-2'}>
           <AccordionSummary
-            className={isTableOk ? 'bg-green-100' : 'bg-red-200'}
+            className={isTableOk ? 'bg-green-100' : 'bg-red-300'}
             expandIcon={<ChevronDownIcon />}
           >
             <p>
