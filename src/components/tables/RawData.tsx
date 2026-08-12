@@ -14,14 +14,22 @@ interface RawDataProps {
 }
 
 export default function RawData(props: RawDataProps) {
-  const columns = useMemo(() => {
+  const columns: (keyof PlayerInfo)[] = useMemo(() => {
     return [
-      'songCounts',
-      'rigCounts',
-      'correctCounts',
-      'difficultyCorrectSum',
-      'lockSpeedCorrectSum',
+      'playerName',
+      'songCountsOEI',
+      'rigCountsOEI',
+      'correctCountsOEI',
+      'difficultyCorrectSumOEI',
+      'lockSpeedCorrectSumOEI',
       'ofEightOnCorrect',
+      'ofEightOnRig',
+      'correctLockTimesList',
+      'onlistCorrect',
+      'offlistCorrect',
+      'soloRigs',
+      'soloRigsMissed',
+      'offlistErig',
     ];
   }, []);
 
@@ -42,17 +50,17 @@ export default function RawData(props: RawDataProps) {
                 <TableCell key={botName}>{botName}</TableCell>
                 {columns.map((colName) => {
                   const value = stats[colName as keyof PlayerInfo]; // trust me bro but fix later
-                  if (typeof value === 'string') {
+                  if (Array.isArray(value)) {
+                    const [_unused, ...remainder] = value;
+                    const formatted = roundNumbers(remainder);
                     return (
-                      <>note to dev: remove this column name from columns!</>
+                      <TableCell key={`${botName}-${formatted}`}>
+                        {formatted}
+                      </TableCell>
                     );
                   }
-                  const [_unused, ...remainder] = value;
-                  const formatted = roundNumbers(remainder);
                   return (
-                    <TableCell key={`${botName}-${formatted}`}>
-                      {formatted}
-                    </TableCell>
+                    <TableCell key={`${botName}-${colName}`}>{value}</TableCell>
                   );
                 })}
               </TableRow>

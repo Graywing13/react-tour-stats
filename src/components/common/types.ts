@@ -53,15 +53,25 @@ export interface AliasType {
 
 export interface PlayerInfo {
   playerName: string;
-  // The following are arrays with length 4. idx 0 = nothing, 1 = op, 2 = ed, 3 = in
-  songCounts: number[];
-  rigCounts: number[];
-  correctCounts: number[];
-  difficultyCorrectSum: number[];
-  lockSpeedCorrectSum: number[];
-  // array of 9. For every song this player got correct, whether they were out of the (0), 1, 2, 3, 4, 5, 6, 7, or 8 players correct
-  ofEightOnCorrect: number[];
-  sevenEightedCount: number[]; // the only player that got this wrong
+
+  // The following are arrays with length 4. idx 0 = nothing, 1 = op, 2 = ed, 3 = in. OEI = OP,ED,IN
+  songCountsOEI: number[];
+  rigCountsOEI: number[];
+  correctCountsOEI: number[];
+  difficultyCorrectSumOEI: number[];
+  lockSpeedCorrectSumOEI: number[];
+
+  // other arrays
+  ofEightOnCorrect: number[]; // array of 9. For every song this player got correct, whether they were out of the (0), 1, 2, 3, 4, 5, 6, 7, or 8 players correct
+  ofEightOnRig: number[]; // lobby of eight on your rigs
+  correctLockTimesList: number[]; // array of variable length. for finding median.
+
+  // numbers
+  onlistCorrect: number;
+  offlistCorrect: number;
+  soloRigs: number; // solo rigs
+  soloRigsMissed: number; // solo rigs that you missed (that others may have hit)
+  offlistErig: number;
 }
 
 export type DerivedPlayerInfoType = {

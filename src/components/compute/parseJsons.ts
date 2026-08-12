@@ -22,24 +22,32 @@ export function parseJsons(
       const songType = song.songInfo.type;
       songCountsThisGame[songType]++;
       const correctGuessCount = song.correctGuessPlayers.length;
+      const fromLists = song.listStates.map(({ name }) => name);
       song.correctGuessPlayers.forEach((player) => {
-        incrementForPlayer(
+        incrementForCorrectPlayer(
           player,
           songType,
           song.songInfo.animeDifficulty,
           correctGuessCount,
+          fromLists.includes(player.name),
         );
       });
-      song.listStates.forEach((listState) => {
-        const modified = playerInfos.get(listState.name)!;
-        modified.rigCounts[songType] += 1;
-        playerInfos.set(listState.name, modified);
+      fromLists.forEach((name) => {
+        const isSolo = fromLists.length === 1;
+        incrementForRigPlayer(
+          name,
+          songType,
+          correctGuessCount,
+          isSolo,
+          isSolo &&
+            song.correctGuessPlayers.some((player) => player.name === name),
+        );
       });
     });
     playersThisGame.forEach((playerName) => {
       songCountsThisGame.forEach((count, songType) => {
         const modified = playerInfos.get(playerName)!;
-        modified.songCounts[songType] += count;
+        modified.songCountsOEI[songType] += count;
         playerInfos.set(playerName, modified);
       });
     });
@@ -129,8 +137,8 @@ export function parseJsons(
                 console.log(
                   `Copying ${knownPlayer}'s song counts to ${missingPlayer}`,
                 );
-                playerInfos.get(missingPlayer)!.songCounts = [
-                  ...playerInfos.get(knownPlayer)!.songCounts,
+                playerInfos.get(missingPlayer)!.songCountsOEI = [
+                  ...playerInfos.get(knownPlayer)!.songCountsOEI,
                 ];
               });
               allPlayers = _.union(allPlayers, knownPlayerTeam);
@@ -158,31 +166,58 @@ export function parseJsons(
     if (!playerInfos.get(name)) {
       playerInfos.set(name, {
         playerName: name,
-        correctCounts: [0, 0, 0, 0],
-        difficultyCorrectSum: [0, 0, 0, 0],
-        lockSpeedCorrectSum: [0, 0, 0, 0],
-        rigCounts: [0, 0, 0, 0],
-        songCounts: [0, 0, 0, 0],
+        correctCountsOEI: [0, 0, 0, 0],
+        difficultyCorrectSumOEI: [0, 0, 0, 0],
+        lockSpeedCorrectSumOEI: [0, 0, 0, 0],
+        rigCountsOEI: [0, 0, 0, 0],
+        songCountsOEI: [0, 0, 0, 0],
         ofEightOnCorrect: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        sevenEightedCount: [0, 0, 0, 0],
+        ofEightOnRig: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        correctLockTimesList: [],
+        offlistCorrect: 0,
+        offlistErig: 0,
+        onlistCorrect: 0,
+        soloRigs: 0,
+        soloRigsMissed: 0,
       });
     }
   }
 
-  function incrementForPlayer(
+  function incrementForCorrectPlayer(
     player: CorrectGuessPlayer,
     songType: SongType,
     songDifficulty: number,
     correctGuessCount: number,
+    isOwnRig: boolean,
   ) {
     const modified = playerInfos.get(player.name)!;
-    modified.correctCounts[songType]++;
-    modified.difficultyCorrectSum[songType] += isNaN(songDifficulty)
+    modified.correctCountsOEI[songType]++;
+    modified.difficultyCorrectSumOEI[songType] += isNaN(songDifficulty)
       ? 0
       : songDifficulty;
-    modified.lockSpeedCorrectSum[songType] += player.answerTime;
+    modified.lockSpeedCorrectSumOEI[songType] += player.answerTime;
     modified.ofEightOnCorrect[correctGuessCount]++;
+    modified.correctLockTimesList.push(player.answerTime);
+    isOwnRig ? modified.onlistCorrect++ : modified.offlistCorrect++;
+    if (!isOwnRig && correctGuessCount === 1) modified.offlistErig++;
     playerInfos.set(player.name, modified);
+  }
+
+  function incrementForRigPlayer(
+    name: string,
+    songType: SongType,
+    correctGuessCount: number,
+    isSoloRig: boolean,
+    isSelfCorrectSoloRig: boolean,
+  ) {
+    const modified = playerInfos.get(name)!;
+    modified.rigCountsOEI[songType] += 1;
+    modified.ofEightOnRig[correctGuessCount] += 1;
+    if (isSoloRig) {
+      modified.soloRigs++;
+      modified.soloRigsMissed += isSelfCorrectSoloRig ? 0 : 1;
+    }
+    playerInfos.set(name, modified);
   }
 
   function findBotName(

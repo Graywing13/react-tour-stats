@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { ChevronDownIcon } from '@storybook/icons';
 import { GAME_MODES } from '../../SETTINGS.ts';
-import { INPUT_FIELD_CLASSNAME } from '../shared/styles.ts';
+import { INPUT_FIELD_CLASSNAME, SUBSTEP_INDICATOR } from '../shared/styles.ts';
 
 interface InputZoneProps {
   files: File[];
@@ -117,7 +117,9 @@ export function InputZone(props: InputZoneProps) {
   const renderRadioOption = useMemo(() => {
     return (
       <div className={subgroupClassname}>
-        <label htmlFor={'gamemode-selector'}>1a) Mode</label>
+        <label className={SUBSTEP_INDICATOR} htmlFor={'gamemode-selector'}>
+          1a) Mode
+        </label>
         <RadioGroup
           id={'gamemode-selector'}
           value={props.gamemode}
@@ -143,7 +145,7 @@ export function InputZone(props: InputZoneProps) {
     return (
       <div className={subgroupClassname}>
         <div className={'flex flex-col'}>
-          <label>1b) Challonge Table</label>
+          <label className={SUBSTEP_INDICATOR}>1b) Challonge Table</label>
           <ul className={'list-disc pl-4'}>
             <li className={'text-sm'}>
               Go to the challonge link and copy the results table at the bottom
@@ -223,7 +225,7 @@ export function InputZone(props: InputZoneProps) {
       {renderRadioOption}
       {renderTeamsInput}
       <div className={subgroupClassname}>
-        <label>1c) JSONs</label>
+        <label className={SUBSTEP_INDICATOR}>1c) JSONs</label>
         <FileUploader
           label={'Upload files here'}
           multiple={true}

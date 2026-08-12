@@ -53,7 +53,7 @@ export const SHEET_COLUMNS: SheetColumnsType = {
   'Missed solos': { fn: calc.getMissedSolos },
   'Rigs hit': { fn: calc.getRigsHit },
   'Rigs missed': { fn: calc.getRigsMissed },
-  'Lives lost on rigs': { fn: calc.getLivesLostOnRigs },
+  '0-X on rigs': { fn: calc.getLivesLostOnRigs },
   'Offlist erigs': { fn: calc.getOfflistErigs },
 
   // your rig, others' performance

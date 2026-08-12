@@ -12,7 +12,7 @@ export function getPlayerName(playerInfo: PlayerInfo) {
 export function getGuessRate(playerInfo: PlayerInfo) {
   const totalCorrect = getTotalHit(playerInfo);
   const totalSongs = getTotalSongs(playerInfo);
-  return totalCorrect / totalSongs;
+  return (totalCorrect / totalSongs) * 100;
 }
 
 export function getUsefulness(playerInfo: PlayerInfo) {
@@ -29,8 +29,8 @@ export function getZeroEights(playerInfo: PlayerInfo) {
   return playerInfo.ofEightOnCorrect[0];
 }
 
-export function getSevenEightedCount(playerInfo: PlayerInfo) {
-  return sum(playerInfo.sevenEightedCount);
+export function getSevenEightedCount() {
+  return '';
 }
 
 export function getAvgEight(playerInfo: PlayerInfo) {
@@ -49,7 +49,7 @@ export function getAvgEight(playerInfo: PlayerInfo) {
 }
 
 export function getThreeEightsOrBelow(playerInfo: PlayerInfo) {
-  const correctCountsFor_0123_OfEight = playerInfo.correctCounts.slice(0, 5);
+  const correctCountsFor_0123_OfEight = playerInfo.correctCountsOEI.slice(0, 5);
   return sum(correctCountsFor_0123_OfEight);
 }
 
@@ -57,55 +57,63 @@ export function getThreeEightsOrBelow(playerInfo: PlayerInfo) {
 
 export function getOpGuessRate(playerInfo: PlayerInfo) {
   return (
-    playerInfo.correctCounts[SONG_TYPES.OP] /
-    playerInfo.songCounts[SONG_TYPES.OP]
+    playerInfo.correctCountsOEI[SONG_TYPES.OP] /
+    playerInfo.songCountsOEI[SONG_TYPES.OP]
   );
 }
 
 export function getEdGuessRate(playerInfo: PlayerInfo) {
   return (
-    playerInfo.correctCounts[SONG_TYPES.ED] /
-    playerInfo.songCounts[SONG_TYPES.ED]
+    playerInfo.correctCountsOEI[SONG_TYPES.ED] /
+    playerInfo.songCountsOEI[SONG_TYPES.ED]
   );
 }
 
 export function getInGuessRate(playerInfo: PlayerInfo) {
   return (
-    playerInfo.correctCounts[SONG_TYPES.IN] /
-    playerInfo.songCounts[SONG_TYPES.IN]
+    playerInfo.correctCountsOEI[SONG_TYPES.IN] /
+    playerInfo.songCountsOEI[SONG_TYPES.IN]
   );
 }
 
 // compared to lobby pt 2
 
 export function getTotalX0s() {
-  return 'idk';
+  return '';
 }
 
 export function getTotal1Xs() {
-  return 'idk';
+  return '';
 }
 
 // guess rate details part 2
 
 export function getTotalHit(playerInfo: PlayerInfo) {
-  return sum(playerInfo.correctCounts);
+  return sum(playerInfo.correctCountsOEI);
 }
 
 export function getTotalSongs(playerInfo: PlayerInfo) {
-  return sum(playerInfo.songCounts);
+  return sum(playerInfo.songCountsOEI);
 }
 
 // self correct song stats
 
 export function getAvgCorrectDiff(playerInfo: PlayerInfo) {
-  return sum(playerInfo.difficultyCorrectSum) / getTotalHit(playerInfo);
+  return sum(playerInfo.difficultyCorrectSumOEI) / getTotalHit(playerInfo);
 }
 
 export function getMedianCorrectLockTime(playerInfo: PlayerInfo) {
-  const meanLockTime =
-    sum(playerInfo.lockSpeedCorrectSum) / getTotalHit(playerInfo);
-  return `avg for now: ${meanLockTime}`;
+  // https://github.com/lodash/lodash/issues/4762#issue-615221897
+  const median = (array: number[]) => {
+    array.sort((a, b) => b - a);
+    const length = array.length;
+    if (length % 2 == 0) {
+      return (array[length / 2] + array[length / 2 - 1]) / 2;
+    } else {
+      return array[Math.floor(length / 2)];
+    }
+  };
+  return median(playerInfo.correctLockTimesList);
 }
 
 // team performance
@@ -124,50 +132,61 @@ export function getTie() {
 
 // sniper guessrate
 
-export function getOnlist() {
-  return 'dont have this data yet';
+export function getOnlist(playerInfo: PlayerInfo) {
+  return (playerInfo.onlistCorrect / getRigs(playerInfo)) * 100;
 }
 
-export function getOfflist() {
-  return 'dont have this data yet';
+export function getOfflist(playerInfo: PlayerInfo) {
+  return (playerInfo.offlistCorrect / getRigs(playerInfo)) * 100;
 }
 
 // your rig, your performance
 
 export function getRigPercentage(playerInfo: PlayerInfo) {
-  return getRigs(playerInfo) / getTotalSongs(playerInfo);
+  return (getRigs(playerInfo) / getTotalSongs(playerInfo)) * 100;
 }
 
 export function getRigs(playerInfo: PlayerInfo) {
-  return sum(playerInfo.rigCounts);
+  return sum(playerInfo.rigCountsOEI);
 }
 
-export function getSoloRigs() {
-  return 'dont have this info yet';
+export function getSoloRigs(playerInfo: PlayerInfo) {
+  return playerInfo.soloRigs;
 }
 
-export function getMissedSolos() {
-  return 'dont have this info yet';
+export function getMissedSolos(playerInfo: PlayerInfo) {
+  return playerInfo.soloRigsMissed;
 }
 
-export function getRigsHit() {
-  return 'dont have this info yet';
+export function getRigsHit(playerInfo: PlayerInfo) {
+  return playerInfo.onlistCorrect;
 }
 
-export function getRigsMissed() {
-  return 'dont have this info yet';
+export function getRigsMissed(playerInfo: PlayerInfo) {
+  return getRigs(playerInfo) - playerInfo.onlistCorrect;
 }
 
 export function getLivesLostOnRigs() {
   return 'dont have this info yet';
 }
 
-export function getOfflistErigs() {
-  return 'dont have this info yet';
+export function getOfflistErigs(playerInfo: PlayerInfo) {
+  return playerInfo.offlistErig;
 }
 
 // your rig, others' performance
 
-export function getAvgEightOfRigs() {
-  return 'dont have this info yet';
+export function getAvgEightOfRigs(playerInfo: PlayerInfo) {
+  const idx = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+  const ofEightsFractionSumPerOfEightKind = zipWith(
+    idx,
+    playerInfo.ofEightOnRig,
+    (correctPlayerSize, instancesRigForSelf) => {
+      const ofEightLabel = correctPlayerSize / 8;
+      return ofEightLabel * instancesRigForSelf;
+    },
+  );
+  const ofEightsSum = sum(ofEightsFractionSumPerOfEightKind);
+  const totalRig = getRigs(playerInfo);
+  return (ofEightsSum / totalRig) * 8;
 }
