@@ -6,14 +6,14 @@ import {
   TableRow,
 } from '@mui/material';
 import type { DerivedPlayerInfoType } from '../common/types.ts';
-import { SHEET_COLUMNS } from './sheetColumns.ts';
+import { ALL_COLUMNS } from './sheetColumns.ts';
 import { formatValue } from '../../formatters.ts';
 
 interface StatsTableDisplayProps {
   derivedPlayerInfos: {
     [botName: string]: DerivedPlayerInfoType;
   };
-  sheetColumns: (keyof typeof SHEET_COLUMNS)[];
+  sheetColumns: (keyof typeof ALL_COLUMNS)[];
 }
 
 export function StatsTableDisplay(props: StatsTableDisplayProps) {

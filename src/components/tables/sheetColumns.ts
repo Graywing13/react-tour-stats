@@ -1,11 +1,20 @@
 import * as calc from './rawDataParser.ts';
 import type { PlayerInfo } from '../common/types.ts';
 
-interface SheetColumnsType {
-  [sheetHeaderRow: string]: { fn: (playerInfo: PlayerInfo) => number | string };
+export interface ExtraCalcData {
+  avgPlayerRank: number;
 }
 
-export const SHEET_COLUMNS: SheetColumnsType = {
+interface SheetColumnsType {
+  [sheetHeaderRow: string]: {
+    fn: (
+      playerInfo: PlayerInfo,
+      extraCalcData: ExtraCalcData,
+    ) => number | string;
+  };
+}
+
+export const ALL_COLUMNS: SheetColumnsType = {
   // about player
   Rank: { fn: calc.getRank },
   'Player name': { fn: calc.getPlayerName },
@@ -96,7 +105,7 @@ const colNames = {
   'avg/8 of your rigs': 'avg/8 of your rigs',
 };
 
-export const SUMMARY_STAT_COLS: (keyof typeof SHEET_COLUMNS)[] = [
+export const SUMMARY_STAT_COLS: (keyof typeof ALL_COLUMNS)[] = [
   colNames['Player name'],
   colNames['Guess rate'],
   colNames['Usefulness'],
@@ -115,7 +124,7 @@ export const SUMMARY_STAT_COLS: (keyof typeof SHEET_COLUMNS)[] = [
   colNames['Offlist'],
 ];
 
-export const SONG_TYPE_AND_DELTAS_COLS: (keyof typeof SHEET_COLUMNS)[] = [
+export const SONG_TYPE_AND_DELTAS_COLS: (keyof typeof ALL_COLUMNS)[] = [
   colNames['Rank'],
   colNames['Player name'],
   colNames['Guess rate'], // missing delta gr
@@ -126,7 +135,7 @@ export const SONG_TYPE_AND_DELTAS_COLS: (keyof typeof SHEET_COLUMNS)[] = [
   colNames['avg correct diff'], // missing avg diff played, avg vintage hit, avg vintage played
 ];
 
-export const WATCHED_EXCLUSIVE_COLS: (keyof typeof SHEET_COLUMNS)[] = [
+export const WATCHED_EXCLUSIVE_COLS: (keyof typeof ALL_COLUMNS)[] = [
   colNames['Rank'],
   colNames['Player name'],
   colNames['Onlist'],
@@ -142,6 +151,4 @@ export const WATCHED_EXCLUSIVE_COLS: (keyof typeof SHEET_COLUMNS)[] = [
   colNames['avg/8 of your rigs'], // missing avg vintage rig
 ];
 
-export const OMIT_FROM_SHEET: (keyof typeof SHEET_COLUMNS)[] = [
-  colNames['Rank'],
-];
+export const OMIT_FROM_SHEET: (keyof typeof ALL_COLUMNS)[] = [colNames['Rank']];

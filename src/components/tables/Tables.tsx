@@ -15,12 +15,13 @@ import { parseJsons } from '../compute/parseJsons.ts';
 import { ChevronDownIcon } from '@storybook/icons';
 import { StatsTableDisplay } from './StatsTableDisplay.tsx';
 import {
-  SHEET_COLUMNS,
+  ALL_COLUMNS,
   SONG_TYPE_AND_DELTAS_COLS,
   SUMMARY_STAT_COLS,
   WATCHED_EXCLUSIVE_COLS,
 } from './sheetColumns.ts';
 import { SUBSTEP_INDICATOR } from '../../shared/styles.ts';
+import { calculateAvgRating } from '../compute/usefulnessUtil.ts';
 
 interface TablesProps {
   files: File[];
@@ -111,13 +112,16 @@ export function Tables(props: TablesProps) {
 
   useEffect(() => {
     if (!finalizedPlayerInfos) return;
+    const extraCalcData = {
+      avgPlayerRank: calculateAvgRating(props.challongeData),
+    };
     const array: [string, DerivedPlayerInfoType][] = Object.entries(
       Object.fromEntries(finalizedPlayerInfos),
     ).map(([botName, playerInfo]) => {
       const statsForPlayer: [string, string | number][] = Object.entries(
-        SHEET_COLUMNS,
+        ALL_COLUMNS,
       ).map(([columnName, columnData]) => {
-        let value = columnData.fn(playerInfo);
+        let value = columnData.fn(playerInfo, extraCalcData);
         if (typeof value === 'number' && !isFinite(value)) {
           console.error(
             `${botName} ${columnName} returned not a number for the following data:`,
@@ -139,7 +143,7 @@ export function Tables(props: TablesProps) {
       );
     });
     props.setDerivedPlayerInfos(Object.fromEntries(array));
-  }, [finalizedPlayerInfos]);
+  }, [finalizedPlayerInfos, props.challongeData]);
 
   useEffect(() => {
     console.log(props.derivedPlayerInfos);
@@ -195,7 +199,7 @@ export function Tables(props: TablesProps) {
         <AccordionDetails>
           <StatsTableDisplay
             derivedPlayerInfos={props.derivedPlayerInfos}
-            sheetColumns={Object.keys(SHEET_COLUMNS)}
+            sheetColumns={Object.keys(ALL_COLUMNS)}
           />
         </AccordionDetails>
       </Accordion>

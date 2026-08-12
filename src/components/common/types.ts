@@ -1,4 +1,4 @@
-import { SHEET_COLUMNS } from '../tables/sheetColumns.ts';
+import { ALL_COLUMNS } from '../tables/sheetColumns.ts';
 
 export const SONG_TYPES = {
   OP: 1,
@@ -72,8 +72,9 @@ export interface PlayerInfo {
   soloRigs: number; // solo rigs
   soloRigsMissed: number; // solo rigs that you missed (that others may have hit)
   offlistErig: number;
+  playerUsefulnessSum: number;
 }
 
 export type DerivedPlayerInfoType = {
-  [key: keyof typeof SHEET_COLUMNS]: string | number;
+  [key: keyof typeof ALL_COLUMNS]: string | number;
 };

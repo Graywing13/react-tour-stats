@@ -1,5 +1,6 @@
 import { type PlayerInfo, SONG_TYPES } from '../common/types.ts';
 import { sum, zipWith } from 'lodash';
+import type { ExtraCalcData } from './sheetColumns.ts';
 
 // about player
 
@@ -19,20 +20,14 @@ export function getGuessRate(playerInfo: PlayerInfo) {
   return (totalCorrect / totalSongs) * 100;
 }
 
-export function getUsefulness(playerInfo: PlayerInfo) {
-  // const playerCount = playerInfo.ofEightOnCorrect.length - 1;
-  // const k = getTotalCorrect(playerInfo);
-  // const numerator = combination(
-  //   factorial(2 * playerCount - 2) /
-  //     factorial(2 * playerCount - 2 - (playerCount - 1)),
-  //   k - 1,
-  // );
-  // const denominator = combination(2 * playerCount - 1, k - 1);
-  // console.log(
-  //   `playerCount=${playerCount}, k=${k}, numerator=${numerator}, denominator=${denominator}`,
-  // );
-  // return numerator / denominator;
-  return '?';
+export function getUsefulness(
+  playerInfo: PlayerInfo,
+  extraCalcData: ExtraCalcData,
+) {
+  return (
+    (2 * playerInfo.playerUsefulnessSum * extraCalcData.avgPlayerRank) /
+    sum(playerInfo.songCountsOEI)
+  );
 }
 
 // compared to lobby

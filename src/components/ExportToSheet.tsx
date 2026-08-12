@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { GAME_MODES } from '../../SETTINGS.ts';
 import type { DerivedPlayerInfoType } from './common/types.ts';
-import { OMIT_FROM_SHEET, SHEET_COLUMNS } from './tables/sheetColumns.ts';
+import { ALL_COLUMNS, OMIT_FROM_SHEET } from './tables/sheetColumns.ts';
 import { Button } from '@mui/material';
 import { CopyIcon } from '@storybook/icons';
 import what_to_do_in_colab_run_all from '../assets/what_to_do_in_colab_run_all.png';
@@ -34,7 +34,7 @@ export function ExportToSheet(props: ExportToSheetProps) {
 
   const dataForSheet: { [key: string]: (string | number)[] } = useMemo(() => {
     const currentDate = new Date().toISOString();
-    const colsForSheet = Object.keys(SHEET_COLUMNS).filter(
+    const colsForSheet = Object.keys(ALL_COLUMNS).filter(
       (colName) => !OMIT_FROM_SHEET.includes(colName),
     );
     const result = Object.entries(props.derivedPlayerInfos).map(

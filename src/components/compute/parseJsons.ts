@@ -6,6 +6,7 @@ import type {
   SongType,
 } from '../common/types.ts';
 import * as _ from 'lodash';
+import { EIGHT_PLAYER_USEFULNESS } from './usefulnessUtil.ts';
 
 export function parseJsons(
   jsons: JsonType[],
@@ -179,6 +180,7 @@ export function parseJsons(
         onlistCorrect: 0,
         soloRigs: 0,
         soloRigsMissed: 0,
+        playerUsefulnessSum: 0,
       });
     }
   }
@@ -198,6 +200,7 @@ export function parseJsons(
     modified.lockSpeedCorrectSumOEI[songType] += player.answerTime;
     modified.ofEightOnCorrect[correctGuessCount]++;
     modified.correctLockTimesList.push(player.answerTime);
+    modified.playerUsefulnessSum += EIGHT_PLAYER_USEFULNESS[correctGuessCount];
     isOwnRig ? modified.onlistCorrect++ : modified.offlistCorrect++;
     if (!isOwnRig && correctGuessCount === 1) modified.offlistErig++;
     playerInfos.set(player.name, modified);
