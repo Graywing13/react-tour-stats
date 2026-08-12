@@ -24,8 +24,6 @@ export function useLocalStorage<T>(
   key: LS_KEY,
   defaultValue: T,
 ): [T, (newValue: T) => void] {
-  const [value, setValue] = useState<T>(defaultValue);
-
   const parseIfExists = useCallback((key: string) => {
     const stringified = localStorage.getItem(key);
     if (stringified) {
@@ -37,6 +35,8 @@ export function useLocalStorage<T>(
       }
     }
   }, []);
+
+  const [value, setValue] = useState<T>(parseIfExists(key) ?? defaultValue);
 
   useEffect(() => {
     const currDataVersion = parseIfExists(LS_KEY.LS_VERSION);
@@ -50,11 +50,6 @@ export function useLocalStorage<T>(
         JSON.stringify(LOCALSTORAGE_VERSION),
       );
     }
-  }, []);
-
-  useEffect(() => {
-    let parsed = parseIfExists(key);
-    setValue(parsed ?? defaultValue);
   }, []);
 
   const saveValue = useCallback((newValue: T) => {

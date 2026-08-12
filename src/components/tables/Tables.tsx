@@ -11,7 +11,6 @@ import type {
   DerivedPlayerInfoType,
   JsonType,
 } from '../common/types.ts';
-import { LS_KEY, useLocalStorage } from '../util/useLocalStorage.ts';
 import { parseJsons } from '../compute/parseJsons.ts';
 import { ChevronDownIcon } from '@storybook/icons';
 import { StatsTableDisplay } from './StatsTableDisplay.tsx';
@@ -33,10 +32,10 @@ interface TablesProps {
   setDerivedPlayerInfos: (newInfos: {
     [botName: string]: DerivedPlayerInfoType;
   }) => void;
+  storedAliases: AliasType;
 }
 
 export function Tables(props: TablesProps) {
-  const [storedAliases] = useLocalStorage<AliasType>(LS_KEY.SITE_ALIASES, {});
   const [fileJsons, setFileJsons] = useState<JsonType[]>([]);
 
   const registeredPlayerNames = useMemo(() => {
@@ -97,12 +96,18 @@ export function Tables(props: TablesProps) {
       const result = parseJsons(
         fileJsons,
         registeredPlayerNames,
-        storedAliases,
+        props.storedAliases,
       );
       console.log(result);
       return result;
     }
-  }, [props.files, registeredPlayerNames, props.shouldProcess, fileJsons]);
+  }, [
+    props.files,
+    registeredPlayerNames,
+    props.shouldProcess,
+    fileJsons,
+    props.storedAliases,
+  ]);
 
   useEffect(() => {
     if (!finalizedPlayerInfos) return;

@@ -7,7 +7,11 @@ import { ExportToSheet } from './components/ExportToSheet.tsx';
 import { GAME_MODES } from '../SETTINGS.ts';
 import { Segment } from './components/common/Segment.tsx';
 import { Setup } from './components/Setup.tsx';
-import type { DerivedPlayerInfoType } from './components/common/types.ts';
+import type {
+  AliasType,
+  DerivedPlayerInfoType,
+  SheetApiKeyType,
+} from './components/common/types.ts';
 
 const APP_VERSION = 0.1;
 
@@ -30,6 +34,14 @@ function App() {
   const [derivedPlayerInfos, setDerivedPlayerInfos] = useState<{
     [botName: string]: DerivedPlayerInfoType;
   }>({});
+  const [aliases, setAliases] = useLocalStorage<AliasType>(
+    LS_KEY.SITE_ALIASES,
+    {},
+  );
+  const [apiKey, setApiKey] = useLocalStorage<Partial<SheetApiKeyType>>(
+    LS_KEY.SHEET_API_KEY,
+    {},
+  );
 
   return (
     <div className={'text-left'}>
@@ -46,7 +58,12 @@ function App() {
         segmentIdx={STEPS.INPUT}
         title={'One time setup'}
       >
-        <Setup />
+        <Setup
+          aliases={aliases}
+          setAliases={setAliases}
+          apiKey={apiKey}
+          setApiKey={setApiKey}
+        />
       </Segment>
       <Segment
         onStep={onStep}
@@ -83,6 +100,7 @@ function App() {
           challongeData={challongeData}
           derivedPlayerInfos={derivedPlayerInfos}
           setDerivedPlayerInfos={setDerivedPlayerInfos}
+          storedAliases={aliases}
         />
       </Segment>
       <Segment
@@ -98,6 +116,7 @@ function App() {
         <ExportToSheet
           gameMode={gamemode}
           derivedPlayerInfos={derivedPlayerInfos}
+          apiKey={apiKey}
         />
       </Segment>
       <Segment onStep={onStep} segmentIdx={STEPS.DONE} title={'Done!'} />

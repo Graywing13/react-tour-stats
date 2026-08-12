@@ -141,3 +141,7 @@ export const WATCHED_EXCLUSIVE_COLS: (keyof typeof SHEET_COLUMNS)[] = [
   colNames['Offlist erigs'],
   colNames['avg/8 of your rigs'], // missing avg vintage rig
 ];
+
+export const OMIT_FROM_SHEET: (keyof typeof SHEET_COLUMNS)[] = [
+  colNames['Rank'],
+];

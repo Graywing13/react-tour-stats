@@ -1,25 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
 import { GAME_MODES } from '../../SETTINGS.ts';
 import type { DerivedPlayerInfoType } from './common/types.ts';
-import { LS_KEY, useLocalStorage } from './util/useLocalStorage.ts';
-import { SHEET_COLUMNS } from './tables/sheetColumns.ts';
+import { OMIT_FROM_SHEET, SHEET_COLUMNS } from './tables/sheetColumns.ts';
 import { Button } from '@mui/material';
 import { CopyIcon } from '@storybook/icons';
-import what_to_do_in_colab from '../assets/what_to_do_in_colab.png';
+import what_to_do_in_colab_run_all from '../assets/what_to_do_in_colab_run_all.png';
 import how_to_know_ur_good_in_colab from '../assets/how_to_know_ur_good_in_colab.png';
 import { SUBSTEP_INDICATOR } from '../shared/styles.ts';
+import { formatValue } from '../formatters.ts';
 
 interface ExportToSheetProps {
   gameMode: keyof typeof GAME_MODES;
   derivedPlayerInfos: {
     [botName: string]: DerivedPlayerInfoType;
   };
+  apiKey: object;
 }
 
 const OG_BUTTON_COLOUR = 'bg-yellow-300';
 
 export function ExportToSheet(props: ExportToSheetProps) {
-  const [apiKey] = useLocalStorage(LS_KEY.SHEET_API_KEY, {});
   const [buttonColour, setButtonColour] = useState(OG_BUTTON_COLOUR);
 
   useEffect(() => {
@@ -34,10 +34,13 @@ export function ExportToSheet(props: ExportToSheetProps) {
 
   const dataForSheet: { [key: string]: (string | number)[] } = useMemo(() => {
     const currentDate = new Date().toISOString();
+    const colsForSheet = Object.keys(SHEET_COLUMNS).filter(
+      (colName) => !OMIT_FROM_SHEET.includes(colName),
+    );
     const result = Object.entries(props.derivedPlayerInfos).map(
       ([botName, infos]) => {
-        const derivedStatsArray = Object.keys(SHEET_COLUMNS).map(
-          (colName) => infos[colName],
+        const derivedStatsArray = colsForSheet.map((colName) =>
+          formatValue(infos[colName]),
         );
         const playerRow = [currentDate, ...derivedStatsArray];
         return [botName, playerRow];
@@ -51,9 +54,9 @@ export function ExportToSheet(props: ExportToSheetProps) {
     return `# STATS DATA HERE
 worksheet_name = '${sheetTabName}'
 data = ${JSON.stringify(dataForSheet)}
-pasted_credentials = ${JSON.stringify(apiKey)}
+pasted_credentials = ${JSON.stringify(props.apiKey)}
 # DATA END`;
-  }, [props.gameMode, apiKey, dataForSheet]);
+  }, [props.gameMode, props.apiKey, dataForSheet]);
 
   return (
     <div className={'flex flex-col gap-2'}>
@@ -77,13 +80,14 @@ pasted_credentials = ${JSON.stringify(apiKey)}
         value={textToCopy}
         className={'font-mono bg-gray-300 text-nowrap'}
         rows={5.5}
+        readOnly={true}
       />
       <label className={SUBSTEP_INDICATOR}>3b) Send to sheet</label>
       <p>
         <b>
           Go to{' '}
           <a
-            className={'underline text-blue-500'}
+            className={'underline text-blue-500 text-3xl'}
             href={
               'https://colab.research.google.com/drive/12_97nIj4_du2MkdSs61kFcvf28FjbGR2#offline=true&sandboxM'
             }
@@ -94,7 +98,7 @@ pasted_credentials = ${JSON.stringify(apiKey)}
         and then paste in the copied text from 3a
       </p>
       <img
-        src={what_to_do_in_colab}
+        src={what_to_do_in_colab_run_all}
         alt={'visual for what to do in google colab'}
       />
       <label className={SUBSTEP_INDICATOR}>

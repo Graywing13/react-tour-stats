@@ -2,38 +2,56 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Button,
   Input,
 } from '@mui/material';
-import { LS_KEY, useLocalStorage } from './util/useLocalStorage.ts';
 import {
   type AliasType,
   API_KEY_FIELD,
   type SheetApiKeyType,
 } from './common/types.ts';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { INPUT_FIELD_CLASSNAME } from '../shared/styles.ts';
 import { ChevronDownIcon } from '@storybook/icons';
 
-export function Setup() {
-  const [aliases, setAliases] = useLocalStorage<AliasType>(
-    LS_KEY.SITE_ALIASES,
-    {},
-  );
-  const [sheetApiKey, setSheetApiKey] = useLocalStorage<
-    Partial<SheetApiKeyType>
-  >(LS_KEY.SHEET_API_KEY, {});
+interface SetupProps {
+  aliases: AliasType;
+  setAliases: (newValue: AliasType) => void;
+  apiKey: Partial<SheetApiKeyType>;
+  setApiKey: (newValue: Partial<SheetApiKeyType>) => void;
+}
+
+export function Setup(props: SetupProps) {
+  const [dirtyAliases, setDirtyAliases] = useState('');
+  const [dirtyApiKey, setDirtyApiKey] = useState('');
+  const [isDirty, setIsDirty] = useState(false);
+
+  useEffect(() => {
+    setDirtyAliases(JSON.stringify(props.aliases, null, 2));
+    setDirtyApiKey(JSON.stringify(props.apiKey, null, 2));
+  }, []);
 
   const isNeedsSetup = useMemo(() => {
     return (
-      !Object.keys(aliases!).length ||
-      API_KEY_FIELD.some((fieldName) => !sheetApiKey[fieldName])
+      !Object.keys(props.aliases!).length ||
+      API_KEY_FIELD.some((fieldName) => !props.apiKey[fieldName])
     );
-  }, [aliases, sheetApiKey]);
+  }, [props.aliases, props.apiKey]);
+
+  const onSave = useCallback(() => {
+    try {
+      props.setAliases(JSON.parse(dirtyAliases));
+      props.setApiKey(JSON.parse(dirtyApiKey));
+      setIsDirty(false);
+    } catch (e) {
+      alert(`invalid json: ${e}`);
+    }
+  }, [dirtyAliases, dirtyApiKey, props.setAliases, props.setApiKey]);
 
   return (
     <Accordion>
       <AccordionSummary
-        className={isNeedsSetup ? 'bg-orange-300' : ''}
+        className={isNeedsSetup ? 'bg-red-300' : ''}
         expandIcon={<ChevronDownIcon />}
       >
         <p>
@@ -44,22 +62,14 @@ export function Setup() {
       <AccordionDetails className={'flex flex-col'}>
         <label>
           Paste aliases from #stats pins here. <br />
-          Has to be "valid json", so to edit, just highlight all the old stuff
-          and paste over it
         </label>
         <Input
           multiline={true}
           rows={4}
-          value={JSON.stringify(aliases, undefined, 2)}
+          value={dirtyAliases}
           onChange={(e) => {
-            try {
-              setAliases(JSON.parse(e.target.value));
-            } catch (error) {
-              alert(
-                'Unable to set aliases. Check that the right thing is being pasted. Error:\n' +
-                  error,
-              );
-            }
+            setDirtyAliases(e.target.value);
+            setIsDirty(true);
           }}
           className={INPUT_FIELD_CLASSNAME}
           placeholder={'Paste aliases from #stats pins here'}
@@ -70,16 +80,10 @@ export function Setup() {
         <Input
           multiline={true}
           rows={4}
-          value={JSON.stringify(sheetApiKey, undefined, 2)}
+          value={dirtyApiKey}
           onChange={(e) => {
-            try {
-              setSheetApiKey(JSON.parse(e.target.value));
-            } catch (error) {
-              alert(
-                'Unable to set sheet metadata. Check that the right thing is being pasted. Error:\n' +
-                  error,
-              );
-            }
+            setDirtyApiKey(e.target.value);
+            setIsDirty(true);
           }}
           className={INPUT_FIELD_CLASSNAME}
           placeholder={'Paste sheet metadata from #stats pins here'}
@@ -92,6 +96,13 @@ export function Setup() {
           <li>Songs that don't have difficulty are counted as 0 diff</li>
         </ul>
         If thats needed for whatever reason... well.. i hope it isnt
+        <Button
+          className={isDirty ? 'bg-yellow-300' : 'bg-gray;300'}
+          onClick={onSave}
+          disabled={!isDirty}
+        >
+          {isDirty ? 'Save Changes' : 'Up-to-date'}
+        </Button>
       </AccordionDetails>
     </Accordion>
   );
