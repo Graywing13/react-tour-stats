@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { GAME_MODES } from '../../SETTINGS.ts';
 import type { DerivedPlayerInfoType } from './common/types.ts';
 import { LS_KEY, useLocalStorage } from './util/useLocalStorage.ts';
-import { SHEET_COLUMNS } from './tables/tableDataTypes.ts';
+import { SHEET_COLUMNS } from './tables/sheetColumns.ts';
 import { Button } from '@mui/material';
 import { CopyIcon } from '@storybook/icons';
 import what_to_do_in_colab from '../assets/what_to_do_in_colab.png';
+import how_to_know_ur_good_in_colab from '../assets/how_to_know_ur_good_in_colab.png';
+import { SUBSTEP_INDICATOR } from '../shared/styles.ts';
 
 interface ExportToSheetProps {
   gameMode: keyof typeof GAME_MODES;
@@ -48,14 +50,16 @@ export function ExportToSheet(props: ExportToSheetProps) {
     const sheetTabName = GAME_MODES[props.gameMode].sheetTitle;
     return `# STATS DATA HERE
 worksheet_name = '${sheetTabName}'
-data=${JSON.stringify(dataForSheet)}
+data = ${JSON.stringify(dataForSheet)}
 pasted_credentials = ${JSON.stringify(apiKey)}
 # DATA END`;
   }, [props.gameMode, apiKey, dataForSheet]);
 
   return (
     <div className={'flex flex-col gap-2'}>
-      3a) generate and copy data to clipboard
+      <label className={SUBSTEP_INDICATOR}>
+        3a) generate and copy data to clipboard
+      </label>
       <Button
         endIcon={<CopyIcon />}
         type={'button'}
@@ -74,8 +78,8 @@ pasted_credentials = ${JSON.stringify(apiKey)}
         className={'font-mono bg-gray-300 text-nowrap'}
         rows={5.5}
       />
+      <label className={SUBSTEP_INDICATOR}>3b) Send to sheet</label>
       <p>
-        3b) Send to sheet.{' '}
         <b>
           Go to{' '}
           <a
@@ -93,7 +97,18 @@ pasted_credentials = ${JSON.stringify(apiKey)}
         src={what_to_do_in_colab}
         alt={'visual for what to do in google colab'}
       />
-      <p>3c) press "run all" in google colab if you haven't already</p>
+      <label className={SUBSTEP_INDICATOR}>
+        3c) check for send confirmation
+      </label>
+      <p>
+        Press "run all" in google colab if you haven't already. If it doesn't
+        work u can click the play buttons individually... either way, uk ur good
+        when u have 2 green checkmarks and some text at the bottom lol
+      </p>
+      <img
+        src={how_to_know_ur_good_in_colab}
+        alt={'visual for how to know ur good'}
+      />
     </div>
   );
 }

@@ -14,8 +14,14 @@ import type {
 import { LS_KEY, useLocalStorage } from '../util/useLocalStorage.ts';
 import { parseJsons } from '../compute/parseJsons.ts';
 import { ChevronDownIcon } from '@storybook/icons';
-import { StatsMain } from './StatsMain.tsx';
-import { SHEET_COLUMNS } from './tableDataTypes.ts';
+import { StatsTableDisplay } from './StatsTableDisplay.tsx';
+import {
+  SHEET_COLUMNS,
+  SONG_TYPE_AND_DELTAS_COLS,
+  SUMMARY_STAT_COLS,
+  WATCHED_EXCLUSIVE_COLS,
+} from './sheetColumns.ts';
+import { SUBSTEP_INDICATOR } from '../../shared/styles.ts';
 
 interface TablesProps {
   files: File[];
@@ -106,7 +112,15 @@ export function Tables(props: TablesProps) {
       const statsForPlayer: [string, string | number][] = Object.entries(
         SHEET_COLUMNS,
       ).map(([columnName, columnData]) => {
-        return [columnName, columnData.fn(playerInfo)];
+        let value = columnData.fn(playerInfo);
+        if (typeof value === 'number' && !isFinite(value)) {
+          console.error(
+            `${botName} ${columnName} returned not a number for the following data:`,
+          );
+          console.log(playerInfo);
+          value = 'NaN';
+        }
+        return [columnName, value];
       });
       const derivedPlayerInfo: DerivedPlayerInfoType =
         Object.fromEntries(statsForPlayer);
@@ -135,13 +149,51 @@ export function Tables(props: TablesProps) {
       </TableContainer>
     );
   }, [finalizedPlayerInfos, props.shouldProcess]);
-
+  debugger;
   return (
     <div>
-      <p>THIS IS NOT FORMATTED YET but to give you a preview heh.</p>
-      {finalizedPlayerInfos && (
-        <StatsMain derivedPlayerInfos={props.derivedPlayerInfos} />
-      )}
+      <div>
+        <label className={SUBSTEP_INDICATOR}>
+          2a) Screenshot sheet 1 (overview)
+        </label>
+        <StatsTableDisplay
+          derivedPlayerInfos={props.derivedPlayerInfos}
+          sheetColumns={SUMMARY_STAT_COLS}
+        />
+      </div>
+      <div>
+        <label className={SUBSTEP_INDICATOR}>
+          2b) Screenshot sheet 2 (song type deltas)
+        </label>
+        <p>
+          Note that this one is missing a bunch of columns compared to tour
+          server
+        </p>
+        <StatsTableDisplay
+          derivedPlayerInfos={props.derivedPlayerInfos}
+          sheetColumns={SONG_TYPE_AND_DELTAS_COLS}
+        />
+      </div>
+      <div>
+        <label className={SUBSTEP_INDICATOR}>
+          2c) IF WATCHED, screenshot sheet 3 (stats involving rig)
+        </label>
+        <StatsTableDisplay
+          derivedPlayerInfos={props.derivedPlayerInfos}
+          sheetColumns={WATCHED_EXCLUSIVE_COLS}
+        />
+      </div>
+      <Accordion>
+        <AccordionSummary expandIcon={<ChevronDownIcon />}>
+          Stats to send to sheet
+        </AccordionSummary>
+        <AccordionDetails>
+          <StatsTableDisplay
+            derivedPlayerInfos={props.derivedPlayerInfos}
+            sheetColumns={Object.keys(SHEET_COLUMNS)}
+          />
+        </AccordionDetails>
+      </Accordion>
       <Accordion>
         <AccordionSummary expandIcon={<ChevronDownIcon />}>
           Raw data extracted from json/challonge

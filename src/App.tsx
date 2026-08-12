@@ -34,9 +34,7 @@ function App() {
   return (
     <div className={'text-left'}>
       <div className={'text-center'}>
-        <h1>
-          🐜 🫐 👯 🐜 🫐 👯 🐜 🫐 👯 🐜 Ant stats 🐜 🫐 👯 🐜 🫐 👯 🐜 🫐 👯 🐜
-        </h1>
+        <h1>🐜 🫐 🐜 🫐 🐜 🫐 👯 Ant stats 👯 🫐 🐜 🫐 🐜 🫐 🐜</h1>
         <p className={'text-gray-400 italic text-sm pb-4'}>
           An ant, a small, industrious insect that lives in a colony. May be
           used to represent ants specifically, as well as various insects or
@@ -77,7 +75,7 @@ function App() {
         onNext={() => {
           setOnStep(STEPS.SHEETS);
         }}
-        nextText={'Prep stats for sheet'}
+        nextText={'2d) Prep stats for sheet'}
       >
         <Tables
           files={uploadedFiles}

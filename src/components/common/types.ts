@@ -1,4 +1,4 @@
-import { SHEET_COLUMNS } from '../tables/tableDataTypes.ts';
+import { SHEET_COLUMNS } from '../tables/sheetColumns.ts';
 
 export const SONG_TYPES = {
   OP: 1,

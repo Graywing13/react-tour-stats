@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { Button } from '@mui/material';
+import { SUBSTEP_INDICATOR } from '../../shared/styles.ts';
 
 interface SegmentProps {
   onStep: number;
@@ -19,23 +20,28 @@ export function Segment(props: SegmentProps) {
       {props.onStep < props.segmentIdx && (
         <div
           className={
-            'w-full h-full flex absolute z-10 cursor-not-allowed bg-slate-800/60 -top-2 text-white justify-center items-center font-extrabold text-4xl'
+            'w-full h-full flex absolute z-10 cursor-not-allowed bg-slate-800/80 -top-2 text-white justify-center items-center font-extrabold text-4xl'
           }
         >
           Complete previous step first
         </div>
       )}
       <h2 className={headerClassname}>{props.title}</h2>
-      <div className={'px-4'}>{props.children || <></>}</div>
-      {props.onNext && props.nextText && (
-        <Button
-          variant={'contained'}
-          onClick={props.onNext}
-          className={'normal-case ml-4 mt-2'}
-        >
-          {props.nextText}
-        </Button>
-      )}
+      <div className={'px-4'}>
+        {props.children || <></>}
+        {props.onNext && props.nextText && (
+          <>
+            <label className={SUBSTEP_INDICATOR}>{props.nextText}</label>
+            <Button
+              variant={'contained'}
+              onClick={props.onNext}
+              className={'normal-case ml-4 mt-2'}
+            >
+              Click to go next
+            </Button>
+          </>
+        )}
+      </div>
     </div>
   );
 }

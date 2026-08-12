@@ -7,6 +7,10 @@ export function getPlayerName(playerInfo: PlayerInfo) {
   return playerInfo.playerName;
 }
 
+export function getRank() {
+  return 'dont have this yet, can extract from challonge';
+}
+
 // glance
 
 export function getGuessRate(playerInfo: PlayerInfo) {

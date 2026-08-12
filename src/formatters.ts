@@ -6,7 +6,7 @@ export function roundNumbers(numbersToRound: number[]) {
   );
 }
 
-export function roundIfNumber(value: number | string) {
-  if (typeof value === 'string') return value;
+export function formatValue(value: number | string) {
+  if (typeof value === 'string') return value || '?';
   return Math.round(value * 1000) / 1000;
 }
