@@ -14,13 +14,25 @@ export function getRank() {
 // glance
 
 export function getGuessRate(playerInfo: PlayerInfo) {
-  const totalCorrect = getTotalHit(playerInfo);
+  const totalCorrect = getTotalCorrect(playerInfo);
   const totalSongs = getTotalSongs(playerInfo);
   return (totalCorrect / totalSongs) * 100;
 }
 
 export function getUsefulness(playerInfo: PlayerInfo) {
-  return `idk, but I'm sure ${playerInfo.playerName} is sometimes useful.`;
+  // const playerCount = playerInfo.ofEightOnCorrect.length - 1;
+  // const k = getTotalCorrect(playerInfo);
+  // const numerator = combination(
+  //   factorial(2 * playerCount - 2) /
+  //     factorial(2 * playerCount - 2 - (playerCount - 1)),
+  //   k - 1,
+  // );
+  // const denominator = combination(2 * playerCount - 1, k - 1);
+  // console.log(
+  //   `playerCount=${playerCount}, k=${k}, numerator=${numerator}, denominator=${denominator}`,
+  // );
+  // return numerator / denominator;
+  return '?';
 }
 
 // compared to lobby
@@ -48,7 +60,7 @@ export function getAvgEight(playerInfo: PlayerInfo) {
     },
   );
   const ofEightsSum = sum(ofEightsFractionSumPerOfEightKind);
-  const totalCorrect = getTotalHit(playerInfo);
+  const totalCorrect = getTotalCorrect(playerInfo);
   return (ofEightsSum / totalCorrect) * 8;
 }
 
@@ -92,7 +104,7 @@ export function getTotal1Xs() {
 
 // guess rate details part 2
 
-export function getTotalHit(playerInfo: PlayerInfo) {
+export function getTotalCorrect(playerInfo: PlayerInfo) {
   return sum(playerInfo.correctCountsOEI);
 }
 
@@ -103,7 +115,7 @@ export function getTotalSongs(playerInfo: PlayerInfo) {
 // self correct song stats
 
 export function getAvgCorrectDiff(playerInfo: PlayerInfo) {
-  return sum(playerInfo.difficultyCorrectSumOEI) / getTotalHit(playerInfo);
+  return sum(playerInfo.difficultyCorrectSumOEI) / getTotalCorrect(playerInfo);
 }
 
 export function getMedianCorrectLockTime(playerInfo: PlayerInfo) {

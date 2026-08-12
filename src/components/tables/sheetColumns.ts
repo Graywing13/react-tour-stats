@@ -31,7 +31,7 @@ export const SHEET_COLUMNS: SheetColumnsType = {
   "Total 1-X's": { fn: calc.getTotal1Xs },
 
   // guess rate details part 2
-  'Total hit': { fn: calc.getTotalHit },
+  'Total hit': { fn: calc.getTotalCorrect },
   'Total songs': { fn: calc.getTotalSongs },
 
   // self correct song stats

@@ -94,6 +94,7 @@ export function Setup(props: SetupProps) {
           <li>No users taking over each others' aliases</li>
           <li>No mid-game subs</li>
           <li>Songs that don't have difficulty are counted as 0 diff</li>
+          <li>Always 8 player ngmc</li>
         </ul>
         If thats needed for whatever reason... well.. i hope it isnt
         <Button
