@@ -18,7 +18,7 @@ interface StatsTableDisplayProps {
 
 export function StatsTableDisplay(props: StatsTableDisplayProps) {
   return (
-    <Table>
+    <Table className={'bg-white text-black'}>
       <TableHead>
         <TableRow>
           {props.sheetColumns.map((columnName) => (
@@ -29,9 +29,13 @@ export function StatsTableDisplay(props: StatsTableDisplayProps) {
         </TableRow>
       </TableHead>
       <TableBody>
-        {Object.entries(props.derivedPlayerInfos).map(([botName, stats]) => {
+        {Object.entries(props.derivedPlayerInfos).map((value, idx) => {
+          const [botName, stats] = value;
           return (
-            <TableRow key={`${botName}-row`}>
+            <TableRow
+              key={`${botName}-row`}
+              className={idx % 2 === 0 ? 'bg-gray-100' : 'bg-white'}
+            >
               {props.sheetColumns.map((statName) => {
                 const stat = stats[statName];
                 return (
