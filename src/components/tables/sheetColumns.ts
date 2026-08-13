@@ -105,7 +105,9 @@ export const colNames = {
   'avg/8 of your rigs': 'avg/8 of your rigs',
 };
 
-export const SUMMARY_STAT_COLS: (keyof typeof ALL_COLUMNS)[] = [
+export type AllowedColumnsType = string; // TODO be more specific in gating later
+
+export const SUMMARY_STAT_COLS: AllowedColumnsType[] = [
   colNames['Player name'],
   colNames['Guess rate'],
   colNames['Usefulness'],
@@ -124,7 +126,7 @@ export const SUMMARY_STAT_COLS: (keyof typeof ALL_COLUMNS)[] = [
   colNames['Offlist'],
 ];
 
-export const SONG_TYPE_AND_DELTAS_COLS: (keyof typeof ALL_COLUMNS)[] = [
+export const SONG_TYPE_AND_DELTAS_COLS: AllowedColumnsType[] = [
   colNames['Rank'],
   colNames['Player name'],
   colNames['Guess rate'], // missing delta gr
@@ -135,7 +137,7 @@ export const SONG_TYPE_AND_DELTAS_COLS: (keyof typeof ALL_COLUMNS)[] = [
   colNames['avg correct diff'], // missing avg diff played, avg vintage hit, avg vintage played
 ];
 
-export const WATCHED_EXCLUSIVE_COLS: (keyof typeof ALL_COLUMNS)[] = [
+export const WATCHED_EXCLUSIVE_COLS: AllowedColumnsType[] = [
   colNames['Rank'],
   colNames['Player name'],
   colNames['Onlist'],
