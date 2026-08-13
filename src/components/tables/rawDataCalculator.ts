@@ -68,22 +68,25 @@ export function getThreeEightsOrBelow(playerInfo: PlayerInfo) {
 
 export function getOpGuessRate(playerInfo: PlayerInfo) {
   return (
-    playerInfo.correctCountsOEI[SONG_TYPES.OP] /
-    playerInfo.songCountsOEI[SONG_TYPES.OP]
+    (playerInfo.correctCountsOEI[SONG_TYPES.OP] /
+      playerInfo.songCountsOEI[SONG_TYPES.OP]) *
+    100
   );
 }
 
 export function getEdGuessRate(playerInfo: PlayerInfo) {
   return (
-    playerInfo.correctCountsOEI[SONG_TYPES.ED] /
-    playerInfo.songCountsOEI[SONG_TYPES.ED]
+    (playerInfo.correctCountsOEI[SONG_TYPES.ED] /
+      playerInfo.songCountsOEI[SONG_TYPES.ED]) *
+    100
   );
 }
 
 export function getInGuessRate(playerInfo: PlayerInfo) {
   return (
-    playerInfo.correctCountsOEI[SONG_TYPES.IN] /
-    playerInfo.songCountsOEI[SONG_TYPES.IN]
+    (playerInfo.correctCountsOEI[SONG_TYPES.IN] /
+      playerInfo.songCountsOEI[SONG_TYPES.IN]) *
+    100
   );
 }
 
@@ -148,7 +151,11 @@ export function getOnlist(playerInfo: PlayerInfo) {
 }
 
 export function getOfflist(playerInfo: PlayerInfo) {
-  return (playerInfo.offlistCorrect / getRigs(playerInfo)) * 100;
+  return (
+    (playerInfo.offlistCorrect /
+      (getTotalSongs(playerInfo) - getRigs(playerInfo))) *
+    100
+  );
 }
 
 // your rig, your performance

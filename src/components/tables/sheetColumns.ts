@@ -1,4 +1,4 @@
-import * as calc from './rawDataParser.ts';
+import * as calc from './rawDataCalculator.ts';
 import type { PlayerInfo } from '../common/types.ts';
 
 export interface ExtraCalcData {
@@ -70,7 +70,7 @@ export const ALL_COLUMNS: SheetColumnsType = {
   'avg/8 of your rigs': { fn: calc.getAvgEightOfRigs },
 };
 
-const colNames = {
+export const colNames = {
   Rank: 'Rank',
   'Player name': 'Player name',
   'Guess rate': 'Guess rate',

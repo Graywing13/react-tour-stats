@@ -13,7 +13,7 @@ interface SegmentProps {
 
 export function Segment(props: SegmentProps) {
   const segmentClassname =
-    'pt-4 pb-4 hover:bg-slate-100 transition-colors relative';
+    'pt-4 pb-4 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors relative';
   const headerClassname = 'border-l-4 border-cyan-500 pl-2';
   return (
     <div className={segmentClassname}>
