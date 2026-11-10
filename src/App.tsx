@@ -12,6 +12,7 @@ import type {
   DerivedPlayerInfoType,
   SheetApiKeyType,
 } from './components/common/types.ts';
+import { AntPoints } from './components/points/AntPoints.tsx';
 
 const APP_VERSION = 0.1;
 
@@ -45,7 +46,24 @@ function App() {
 
   return (
     <div className={'text-left'}>
-      <div className={'text-center'}>
+      <div className={'text-center bg-black text-slate-100 h-full'}>
+        <h1>🐜 🫐 🐜 🫐 🐜 🫐 👯 Ant Points👯 🫐 🐜 🫐 🐜 🫐 🐜</h1>
+        <p>im lazy so reusing the same site</p>
+        <AntPoints />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
         <h1>🐜 🫐 🐜 🫐 🐜 🫐 👯 Ant stats 👯 🫐 🐜 🫐 🐜 🫐 🐜</h1>
         <p className={'text-gray-400 italic text-sm pb-4'}>
           An ant, a small, industrious insect that lives in a colony. May be
